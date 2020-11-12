@@ -118,6 +118,9 @@ contract PooTogether is Ownable {
 		}
 		return (vault.balance().mul(shares)).div(supply);
 	}
-// yvaultinterface https://github.com/pooltogether/pooltogether-pool-contracts/blob/master/contracts/prize-pool/yearn/yVaultPrizePool.sol
-// admin only
+
+	// admin only
+	function changeDistributor(DistribInterface _dist) onlyOwner external {
+		distributor = _dist;
+	}
 }
