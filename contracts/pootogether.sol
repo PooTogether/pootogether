@@ -2,12 +2,13 @@ import "./SortitionSumTreeFactory.sol";
 import "./UniformRandomNumber.sol";
 import "./SafeMath.sol";
 import "./Interfaces.sol";
+import "./Ownable.sol";
 
 interface DistribInterface {
 	function distribute(uint entropy, address winner) external;
 }
 
-contract PooTogether {
+contract PooTogether is Ownable {
 	using SafeMath for uint;
 
 	// Terminology
@@ -33,7 +34,7 @@ contract PooTogether {
 	// @TODO you'd have to support depositing yUSD too
 
 	function deposit(uint amountBase) external {
-		IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase);
+		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
 		vault.deposit(amountBase);
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
@@ -41,7 +42,7 @@ contract PooTogether {
 	}
 
 	function depositShares(uint amountShares) external {
-		vault.transferFrom(msg.sender, address(this), amountShares);
+		require(vault.transferFrom(msg.sender, address(this), amountShares));
 		uint amountBase = toBase(amountShares);
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
@@ -52,7 +53,7 @@ contract PooTogether {
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
 		// XXX: if there is a rounding error here and we don't receive amountBase?
 		vault.withdraw(toShares(amountBase));
-		IERC20(vault.token()).transfer(msg.sender, amountBase);
+		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 	}
@@ -60,7 +61,7 @@ contract PooTogether {
 	function withdrawShares(uint amountShares) external {
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
-		vault.transfer(msg.sender, amountShares);
+		require(vault.transfer(msg.sender, amountShares));
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 	}
@@ -82,7 +83,7 @@ contract PooTogether {
 		uint skimmableShares = toShares(this.skimmableBase());
 
 		// XXX if the distributor wants to receive the base then we withdraw the shares and transfer skimmable
-		vault.transfer(address(distributor), skimmableShares);
+		require(vault.transfer(address(distributor), skimmableShares));
 
 		uint rand = entropy();
 		address winner = winner(rand);
@@ -97,10 +98,8 @@ contract PooTogether {
 	}
 
 	function entropy() internal view returns (uint256) {
-		// @TODO secret
-		return uint256(blockhash(block.number - 1) /*^ secret*/);
+		return uint256(blockhash(block.number - 1)/* ^ secret*/);
 	}
-
 
 
 	// the share value is vault.getPricePerFullShare() / 1e18
