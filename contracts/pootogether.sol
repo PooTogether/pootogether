@@ -15,10 +15,15 @@ contract PooTogether {
 	// share = the share tokeni, i.e. the vault token itself
 	// example: base is yCrv, share is yUSD
 
+	bytes32 public constant TREE_KEY = "PooPoo";
+
 	uint totalBase;
 	mapping (address => uint) perUserBase;
 	yVaultInterface vault;
 	DistribInterface distributor;
+
+	using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
+	SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees;
 
 	constructor (yVaultInterface _vault, DistribInterface _distrib) public {
 		vault = _vault;
@@ -30,7 +35,7 @@ contract PooTogether {
 	function deposit(uint amountBase) external {
 		IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase);
 		vault.deposit(amountBase);
-		perUserBase[msg.sender] = perUserBase[msg.sender].add(amountBase);
+		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
 		// @TODO emit
 	}
@@ -38,7 +43,7 @@ contract PooTogether {
 	function depositShares(uint amountShares) external {
 		vault.transferFrom(msg.sender, address(this), amountShares);
 		uint amountBase = toBase(amountShares);
-		perUserBase[msg.sender] = perUserBase[msg.sender].add(amountBase);
+		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
 	}
 
@@ -48,7 +53,7 @@ contract PooTogether {
 		// XXX: if there is a rounding error here and we don't receive amountBase?
 		vault.withdraw(toShares(amountBase));
 		IERC20(vault.token()).transfer(msg.sender, amountBase);
-		perUserBase[msg.sender] = perUserBase[msg.sender].sub(amountBase);
+		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 	}
 
@@ -56,11 +61,17 @@ contract PooTogether {
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
 		vault.transfer(msg.sender, amountShares);
-		perUserBase[msg.sender] = perUserBase[msg.sender].sub(amountBase);
+		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 	}
 
-	function skimmableBase() external view returns (uint) {
+	function setUserBase(address user, uint base) internal {
+		perUserBase[user] = base;
+		sortitionSumTrees.set(TREE_KEY, base, bytes32(uint(user)));
+	}
+
+	// Drawing system
+	function skimmableBase() public view returns (uint) {
 		uint ourWorthInBase = toBase(vault.balanceOf(address(this)));
 		uint skimmable = ourWorthInBase.sub(totalBase);
 		return skimmable;
@@ -73,22 +84,23 @@ contract PooTogether {
 		// XXX if the distributor wants to receive the base then we withdraw the shares and transfer skimmable
 		vault.transfer(address(distributor), skimmableShares);
 
-		address winner = winner(entropy());
-		distributor.distribute(entropy(), winner);
+		uint rand = entropy();
+		address winner = winner(rand);
+		distributor.distribute(rand, winner);
 		
 		// @TODO 
 		//poo.mint(winner, pooPerDraw)
 	}
 
 	function winner(uint entropy) public view returns (address) {
-		// @TODO replace this 
-		return address(0x0000000000000000000000000000000000000000);
+		return address(uint256(sortitionSumTrees.draw(TREE_KEY, entropy)));
 	}
 
 	function entropy() internal view returns (uint256) {
 		// @TODO secret
 		return uint256(blockhash(block.number - 1) /*^ secret*/);
 	}
+
 
 
 	// the share value is vault.getPricePerFullShare() / 1e18
@@ -101,11 +113,11 @@ contract PooTogether {
 	}
 
 	function toBase(uint256 shares) internal view returns (uint256) {
-		uint256 ts = vault.totalSupply();
-		if (ts == 0 || shares == 0) {
+		uint256 supply = vault.totalSupply();
+		if (supply == 0 || shares == 0) {
 			return 0;
 		}
-		return (vault.balance().mul(shares)).div(ts);
+		return (vault.balance().mul(shares)).div(supply);
 	}
 // yvaultinterface https://github.com/pooltogether/pooltogether-pool-contracts/blob/master/contracts/prize-pool/yearn/yVaultPrizePool.sol
 // admin only
