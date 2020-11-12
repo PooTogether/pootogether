@@ -66,6 +66,10 @@ contract PooTogether is Ownable {
 		totalBase = totalBase.sub(amountBase);
 	}
 
+	function withdrawableShares(address user) external view returns (uint) {
+		return toShares(perUserBase[msg.sender]);
+	}
+
 	function setUserBase(address user, uint base) internal {
 		perUserBase[user] = base;
 		sortitionSumTrees.set(TREE_KEY, base, bytes32(uint(user)));
