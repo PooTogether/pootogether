@@ -78,7 +78,7 @@ contract PooTogether is Ownable {
 		return skimmable;
 	}
 
-	function draw() external {
+	function draw() onlyOwner external {
 		//require(/* no recent draw */)
 		uint skimmableShares = toShares(this.skimmableBase());
 
