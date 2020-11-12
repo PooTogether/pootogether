@@ -18,10 +18,10 @@ contract PooTogether is Ownable {
 
 	bytes32 public constant TREE_KEY = "PooPoo";
 
-	uint totalBase;
-	mapping (address => uint) perUserBase;
-	yVaultInterface vault;
-	DistribInterface distributor;
+	uint public totalBase;
+	mapping (address => uint) public perUserBase;
+	yVaultInterface public vault;
+	DistribInterface public distributor;
 
 	using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
 	SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees;
