@@ -7,7 +7,10 @@ contract Distributor {
 	address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 	
 	function shitcoinMenu(uint entropy) public pure returns (address) { 
-		uint idx = UniformRandomNumber.uniform(entropy, 11);
+		uint idx = UniformRandomNumber.uniform(
+			entropy,
+			11 /* WARNING: ADJUST BASED ON TOKEN COUNT!! */
+		);
 		if (idx == 0) return address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984); // UNI 
 		if (idx == 1) return address(0x62359Ed7505Efc61FF1D56fEF82158CcaffA23D7); // CORE
 		if (idx == 2) return address(0x1494CA1F11D487c2bBe4543E90080AeBa4BA3C2b); // DPI
