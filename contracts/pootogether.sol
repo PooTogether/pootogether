@@ -39,8 +39,10 @@ contract PooTogether is Ownable {
 		distributor = _distrib;
 	}
 
-	// @TODO you'd have to support depositing yUSD too
-
+	// @TODO explain why we have two deposits and two withdrawals
+	// emit Deposit(user, amountBase, amountShares)
+	// emit Withdraw(user, amountBase, amountShares)
+	// @TODO explain why the pool is locked (so that whoever knows the secret doesn't manipulate results)
 	function deposit(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
@@ -56,9 +58,9 @@ contract PooTogether is Ownable {
 		uint amountBase = toBase(amountShares);
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
+		// @TODO emit
 	}
 
-	// @TODO explain why we have two deposits and two withdrawals
 	function withdraw(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
@@ -67,6 +69,7 @@ contract PooTogether is Ownable {
 		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
+		// @TODO emit
 	}
 
 	function withdrawShares(uint amountShares) external {
@@ -76,6 +79,7 @@ contract PooTogether is Ownable {
 		require(vault.transfer(msg.sender, amountShares));
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
+		// @TODO emit
 	}
 
 	function withdrawableShares(address user) external view returns (uint) {
