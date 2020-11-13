@@ -63,7 +63,7 @@ contract PooTogether is Ownable {
 
 	function withdraw(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
-		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
+		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
 		// XXX: if there is a rounding error here and we don't receive amountBase?
 		vault.withdraw(toShares(amountBase));
 		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
@@ -75,7 +75,7 @@ contract PooTogether is Ownable {
 	function withdrawShares(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
-		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
+		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
 		require(vault.transfer(msg.sender, amountShares));
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
@@ -135,14 +135,6 @@ contract PooTogether is Ownable {
 		return uint256(keccak256(abi.encodePacked(blockhash(block.number - 40), secret)));
 	}
 
-	// the share value is vault.getPricePerFullShare() / 1e18
-	// multiplying it is .mul(vault.getPricePerFullShare()).div(1e18) - to get base
-	// and the opposite is .mul(1e18).div(vault.getPricePerFullShare()) - to get share
-	// pricePerFullShare is balance().mul(1e18).div(totalSupply())
-	// so to get base is .mul(balance().mul(1e18).div(supply())).div(10e) or just .mul(balance()).div(supply())
-	// and to get share it's .mul(1e18).div(balance().mul(1e18).div(supply())) so .mul(supply())).div(balance())
-
-	// @TODO check if all base -> shares is dividing by shares and vice versa
 	function toShares(uint256 tokens) internal view returns (uint256) {
 		return vault.totalSupply().mul(tokens).div(vault.balance());
 	}
