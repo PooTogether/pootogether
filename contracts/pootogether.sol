@@ -25,6 +25,10 @@ contract PooTogether is Ownable {
 	uint public lockedUntilBlock;
 	bytes32 public secretHash;
 
+	// events
+	event Deposit(address indexed user, uint amountBase, uint amountShares, uint time);
+	event Withdraw(address indexed user, uint amountBase, uint amountShares, uint time);
+
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times); we take the 40th to last block (~8 mins)
 	// we will lock for around 10 mins
 	// Note: must be at least 40 for security properties to hold! We use `blockhash(block.number - 40)` for entropy to mitigate reorgs to manipulate the winner,
@@ -39,37 +43,49 @@ contract PooTogether is Ownable {
 		distributor = _distrib;
 	}
 
-	// @TODO explain why we have two deposits and two withdrawals
-	// emit Deposit(user, amountBase, amountShares)
-	// emit Withdraw(user, amountBase, amountShares)
-	// @TODO explain why the pool is locked (so that whoever knows the secret doesn't manipulate results)
+	// Why we have locks:
+	// Outcome (winner) is affected by three factors: the secret (which uses commit-reveal),
+	// ...the entropy block (mined after the commit but before the reveal) and the overall sortition tree state (deposits)
+	// Deposits/withdrawals get locked once the secret is committed, so that the operator can't manipulate results using their inside knowledge
+	// of the secret, after the entropy block has been mined
+	// Miners can't manipulate cause they don't know the secret
+
+	// Why we can deposit/withdraw both base and shares
+	// cause with different vaults different things make sense - eg with yUSD most people would be holding yUSD
+	// while with USDT, most people might be holding USDT rather than the vault share token (yUSDT)
 	function deposit(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
 		vault.deposit(amountBase);
+
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
-		// @TODO emit
+
+		emit Deposit(msg.sender, amountBase, toShares(amountBase), now);
 	}
 
 	function depositShares(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(vault.transferFrom(msg.sender, address(this), amountShares));
 		uint amountBase = toBase(amountShares);
+
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
-		// @TODO emit
+
+		emit Deposit(msg.sender, amountBase, amountShares, now);
 	}
 
 	function withdraw(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
-		// XXX: if there is a rounding error here and we don't receive amountBase?
-		vault.withdraw(toShares(amountBase));
+		uint amountShares = toShares(amountBase);
+		vault.withdraw(amountShares);
 		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
+
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
-		// @TODO emit
+
+		emit Withdraw(msg.sender, amountBase, amountShares, now);
 	}
 
 	function withdrawShares(uint amountShares) external {
@@ -77,9 +93,11 @@ contract PooTogether is Ownable {
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
 		require(vault.transfer(msg.sender, amountShares));
+
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
-		// @TODO emit
+
+		emit Withdraw(msg.sender, amountBase, amountShares, now);
 	}
 
 	function withdrawableShares(address user) external view returns (uint) {
