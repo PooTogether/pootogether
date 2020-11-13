@@ -136,8 +136,11 @@ contract PooTogether is Ownable {
 	}
 
 	// the share value is vault.getPricePerFullShare() / 1e18
-	// multiplying it is .mul(vault.getPricePerFullShare()).div(1e18)
-	// and the opposite is .mul(1e18).div(vault.getPricePerFullShare())
+	// multiplying it is .mul(vault.getPricePerFullShare()).div(1e18) - to get base
+	// and the opposite is .mul(1e18).div(vault.getPricePerFullShare()) - to get share
+	// pricePerFullShare is balance().mul(1e18).div(totalSupply())
+	// so to get base is .mul(balance().mul(1e18).div(supply())).div(10e) or just .mul(balance()).div(supply())
+	// and to get share it's .mul(1e18).div(balance().mul(1e18).div(supply())) so .mul(supply())).div(balance())
 
 	// @TODO check if all base -> shares is dividing by shares and vice versa
 	function toShares(uint256 tokens) internal view returns (uint256) {
