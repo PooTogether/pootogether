@@ -31,6 +31,8 @@ contract Distributor {
 		path[0] = address(vault);
 		path[1] = WETH;
 		path[2] = shitcoinMenu(entropy);
-		uniswap.swapExactTokensForTokens(vault.balanceOf(address(this)), uint(0), path, winner, block.timestamp);
+		uint total = vault.balanceOf(address(this))
+		vault.approve(address(uniswap), total);
+		uniswap.swapExactTokensForTokens(total, uint(0), path, winner, block.timestamp);
 	}
 }
