@@ -124,7 +124,7 @@ contract PooTogether is Ownable {
 	}
 
 	function lock(bytes32 _secretHash) onlyOwner external {
-		lockedUntilBlock = block.number + lockedUntilBlock;
+		lockedUntilBlock = block.number + LOCK_FOR_BLOCKS;
 		secretHash = _secretHash;
 		emit Locked(lockedUntilBlock, now);
 	}
@@ -147,7 +147,7 @@ contract PooTogether is Ownable {
 		address winner = winner(rand);
 		distributor.distribute(rand, winner);
 
-		// @TODO 
+		// @TODO - or just use the distributor to mint, but that needs to be done safely (msg.sender == )
 		//poo.mint(winner, pooPerDraw)
 	}
 
