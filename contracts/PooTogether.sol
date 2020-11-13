@@ -20,7 +20,7 @@ contract PooTogether is Ownable {
 
 	uint public totalBase;
 	mapping (address => uint) public perUserBase;
-	yVaultInterface public vault;
+	yVaultInterface public immutable vault;
 	DistribInterface public distributor;
 	uint public lockedUntilBlock;
 	bytes32 public secretHash;
@@ -81,7 +81,7 @@ contract PooTogether is Ownable {
 
 	function withdraw(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
-		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
+		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
 		uint amountShares = toShares(amountBase);
 		vault.withdraw(amountShares);
 		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
@@ -95,7 +95,7 @@ contract PooTogether is Ownable {
 	function withdrawShares(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
-		require(perUserBase[msg.sender] > amountBase, "insufficient funds");
+		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
 		require(vault.transfer(msg.sender, amountShares));
 
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
