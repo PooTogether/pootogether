@@ -28,12 +28,16 @@ contract PooTogether is Ownable {
 	// events
 	event Deposit(address indexed user, uint amountBase, uint amountShares, uint time);
 	event Withdraw(address indexed user, uint amountBase, uint amountShares, uint time);
+	event Locked(uint untilBlock, uint time);
+	event Unlocked(uint time);
 
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times); we take the 40th to last block (~8 mins)
-	// we will lock for around 10 mins
 	// Note: must be at least 40 for security properties to hold! We use `blockhash(block.number - 40)` for entropy to mitigate reorgs to manipulate the winner,
 	// but if the block taken is before the lock (LOCK_FOR_BLOCKS < 40), then the operator can manipulate the secret bsaed on the known block hash!
+	// 46 blocks is around 10 minutes
 	uint public constant LOCK_FOR_BLOCKS = 46;
+	// The unlock safety is the amount of blocks we wait after lockedUntilBlock before *anyone* (not only the operator) can unlock
+	uint public constant UNLOCK_SAFETY_BLOCKS = 200;
 
 	using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
 	SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees;
@@ -109,7 +113,9 @@ contract PooTogether is Ownable {
 		sortitionSumTrees.set(TREE_KEY, base, bytes32(uint(user)));
 	}
 
+	//
 	// Drawing system
+	//
 	function skimmableBase() public view returns (uint) {
 		uint ourWorthInBase = toBase(vault.balanceOf(address(this)));
 		uint skimmable = ourWorthInBase.sub(totalBase);
@@ -119,6 +125,7 @@ contract PooTogether is Ownable {
 	function lock(bytes32 _secretHash) onlyOwner external {
 		lockedUntilBlock = block.number + lockedUntilBlock;
 		secretHash = _secretHash;
+		emit Locked(lockedUntilBlock, now);
 	}
 
 	function draw(bytes32 secret) onlyOwner external {
@@ -126,9 +133,7 @@ contract PooTogether is Ownable {
 		require(block.number >= lockedUntilBlock, "pool is not unlockable yet");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
-		// unlock pool
-		lockedUntilBlock = 0;
-		secretHash = bytes32(0);
+		unlockInternal();
 
 		// skim the revenue and distribute it
 		uint skimmableShares = toShares(this.skimmableBase());
@@ -142,6 +147,19 @@ contract PooTogether is Ownable {
 
 		// @TODO 
 		//poo.mint(winner, pooPerDraw)
+	}
+
+	function unlock() external {
+		require(lockedUntilBlock > 0, "pool is not locked");
+		require(block.number >= (lockedUntilBlock + UNLOCK_SAFETY_BLOCKS), "pool is not publicly unlockable yet");
+		unlockInternal();
+	}
+
+	function unlockInternal() internal {
+		// unlock pool
+		lockedUntilBlock = 0;
+		secretHash = bytes32(0);
+		emit Unlocked(now);
 	}
 
 	function winner(uint entropy) public view returns (address) {
