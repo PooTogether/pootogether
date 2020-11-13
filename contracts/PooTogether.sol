@@ -183,13 +183,11 @@ contract PooTogether is Ownable {
 
 	function toBase(uint256 shares) internal view returns (uint256) {
 		uint256 supply = vault.totalSupply();
-		if (supply == 0 || shares == 0) {
-			return 0;
-		}
+		if (supply == 0 || shares == 0) return 0;
 		return (vault.balance().mul(shares)).div(supply);
 	}
 
-	// admin only
+	// admin only (besides lock/draw)
 	function changeDistributor(DistribInterface _dist) onlyOwner external {
 		distributor = _dist;
 	}
