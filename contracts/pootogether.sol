@@ -118,6 +118,7 @@ contract PooTogether is Ownable {
 	//
 	function skimmableBase() public view returns (uint) {
 		uint ourWorthInBase = toBase(vault.balanceOf(address(this)));
+		// XXX what happens if somehow ourWorthInBase < totalBase - this shouldn't happen
 		uint skimmable = ourWorthInBase.sub(totalBase);
 		return skimmable;
 	}
@@ -137,6 +138,7 @@ contract PooTogether is Ownable {
 
 		// skim the revenue and distribute it
 		uint skimmableShares = toShares(this.skimmableBase());
+		require(skimmableShares > 0, "no skimmable rewards");
 
 		// XXX if the distributor wants to receive the base then we withdraw the shares and transfer skimmable
 		require(vault.transfer(address(distributor), skimmableShares));
