@@ -1,3 +1,4 @@
 .env
+.secret
 node_modules
 
