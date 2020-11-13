@@ -128,7 +128,7 @@ contract PooTogether is Ownable {
 	}
 
 	function entropy(bytes32 secret) internal view returns (uint256) {
-		return uint256(blockhash(block.number - 40) ^ secret);
+		return uint256(keccak256(abi.encodePacked(blockhash(block.number - 40), secret)));
 	}
 
 	// the share value is vault.getPricePerFullShare() / 1e18
