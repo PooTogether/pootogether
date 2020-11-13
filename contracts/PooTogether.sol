@@ -45,6 +45,7 @@ contract PooTogether is Ownable {
 	constructor (yVaultInterface _vault, DistribInterface _distrib) public {
 		vault = _vault;
 		distributor = _distrib;
+		sortitionSumTrees.createTree(TREE_KEY, 4);
 	}
 
 	// Why we have locks:
