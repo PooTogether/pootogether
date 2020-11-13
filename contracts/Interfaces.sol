@@ -1,4 +1,3 @@
-
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
@@ -10,7 +9,6 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// Interfaces
 interface yVaultInterface is IERC20 {
     function token() external view returns (address);
     function balance() external view returns (uint);
@@ -19,4 +17,13 @@ interface yVaultInterface is IERC20 {
     function getPricePerFullShare() external view returns (uint);
 }
 
+interface Uni {
+    function swapExactTokensForTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external;
+}
 
