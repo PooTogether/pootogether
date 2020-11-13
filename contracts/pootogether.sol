@@ -105,7 +105,7 @@ contract PooTogether is Ownable {
 	}
 
 	function withdrawableShares(address user) external view returns (uint) {
-		return toShares(perUserBase[msg.sender]);
+		return toShares(perUserBase[user]);
 	}
 
 	function setUserBase(address user, uint base) internal {
