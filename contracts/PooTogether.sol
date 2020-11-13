@@ -64,7 +64,9 @@ contract PooTogether is Ownable {
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
 
-		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
+		IERC20 token = IERC20(vault.token());
+		require(token.transferFrom(msg.sender, address(this), amountBase));
+		token.approve(address(vault), amountBase);
 		vault.deposit(amountBase);
 
 		emit Deposit(msg.sender, amountBase, toShares(amountBase), now);
@@ -89,6 +91,7 @@ contract PooTogether is Ownable {
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 
+		// XXX this may be a problem cause shares sounds down
 		uint amountShares = toShares(amountBase);
 		vault.withdraw(amountShares);
 		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
