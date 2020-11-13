@@ -22,6 +22,14 @@ contract PooTogether is Ownable {
 	mapping (address => uint) public perUserBase;
 	yVaultInterface public vault;
 	DistribInterface public distributor;
+	uint public lockedUntilBlock;
+	bytes32 public secretHash;
+
+	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times); we take the 40th to last block (~8 mins)
+	// we will lock for around 10 mins
+	// Note: must be at least 40 for security properties to hold! We use `blockhash(block.number - 40)` for entropy to mitigate reorgs to manipulate the winner,
+	// but if the block taken is before the lock (LOCK_FOR_BLOCKS < 40), then the operator can manipulate the secret bsaed on the known block hash!
+	uint public constant LOCK_FOR_BLOCKS = 46;
 
 	using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
 	SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees;
@@ -34,6 +42,7 @@ contract PooTogether is Ownable {
 	// @TODO you'd have to support depositing yUSD too
 
 	function deposit(uint amountBase) external {
+		require(lockedUntilBlock == 0, "pool is locked");
 		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
 		vault.deposit(amountBase);
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
@@ -42,6 +51,7 @@ contract PooTogether is Ownable {
 	}
 
 	function depositShares(uint amountShares) external {
+		require(lockedUntilBlock == 0, "pool is locked");
 		require(vault.transferFrom(msg.sender, address(this), amountShares));
 		uint amountBase = toBase(amountShares);
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
@@ -50,6 +60,7 @@ contract PooTogether is Ownable {
 
 	// @TODO explain why we have two deposits and two withdrawals
 	function withdraw(uint amountBase) external {
+		require(lockedUntilBlock == 0, "pool is locked");
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
 		// XXX: if there is a rounding error here and we don't receive amountBase?
 		vault.withdraw(toShares(amountBase));
@@ -59,6 +70,7 @@ contract PooTogether is Ownable {
 	}
 
 	function withdrawShares(uint amountShares) external {
+		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] > amountBase, 'insufficient funds');
 		require(vault.transfer(msg.sender, amountShares));
@@ -82,29 +94,42 @@ contract PooTogether is Ownable {
 		return skimmable;
 	}
 
-	function draw() onlyOwner external {
-		//require(/* no recent draw */)
+	function lock(bytes32 _secretHash) onlyOwner external {
+		lockedUntilBlock = block.number + lockedUntilBlock;
+		secretHash = _secretHash;
+	}
+
+	function draw(bytes32 secret) onlyOwner external {
+		require(lockedUntilBlock > 0, "pool is not locked");
+		require(block.number >= lockedUntilBlock, "pool is not unlockable yet");
+		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
+
+		// unlock pool
+		lockedUntilBlock = 0;
+		secretHash = bytes32(0);
+
+		// skim the revenue and distribute it
 		uint skimmableShares = toShares(this.skimmableBase());
 
 		// XXX if the distributor wants to receive the base then we withdraw the shares and transfer skimmable
 		require(vault.transfer(address(distributor), skimmableShares));
 
-		uint rand = entropy();
+		uint rand = entropy(secret);
 		address winner = winner(rand);
 		distributor.distribute(rand, winner);
-		
+
 		// @TODO 
 		//poo.mint(winner, pooPerDraw)
 	}
 
 	function winner(uint entropy) public view returns (address) {
-		return address(uint256(sortitionSumTrees.draw(TREE_KEY, entropy)));
+		uint randomToken = UniformRandomNumber.uniform(entropy, totalBase);
+		return address(uint256(sortitionSumTrees.draw(TREE_KEY, randomToken)));
 	}
 
-	function entropy() internal view returns (uint256) {
-		return uint256(blockhash(block.number - 1)/* ^ secret*/);
+	function entropy(bytes32 secret) internal view returns (uint256) {
+		return uint256(blockhash(block.number - 40) ^ secret);
 	}
-
 
 	// the share value is vault.getPricePerFullShare() / 1e18
 	// multiplying it is .mul(vault.getPricePerFullShare()).div(1e18)
