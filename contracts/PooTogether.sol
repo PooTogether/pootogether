@@ -59,22 +59,24 @@ contract PooTogether is Ownable {
 	// while with USDT, most people might be holding USDT rather than the vault share token (yUSDT)
 	function deposit(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
-		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
-		vault.deposit(amountBase);
 
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
+
+		require(IERC20(vault.token()).transferFrom(msg.sender, address(this), amountBase));
+		vault.deposit(amountBase);
 
 		emit Deposit(msg.sender, amountBase, toShares(amountBase), now);
 	}
 
 	function depositShares(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
-		require(vault.transferFrom(msg.sender, address(this), amountShares));
 		uint amountBase = toBase(amountShares);
 
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
 		totalBase = totalBase.add(amountBase);
+
+		require(vault.transferFrom(msg.sender, address(this), amountShares));
 
 		emit Deposit(msg.sender, amountBase, amountShares, now);
 	}
@@ -82,12 +84,13 @@ contract PooTogether is Ownable {
 	function withdraw(uint amountBase) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
-		uint amountShares = toShares(amountBase);
-		vault.withdraw(amountShares);
-		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
 
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
+
+		uint amountShares = toShares(amountBase);
+		vault.withdraw(amountShares);
+		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
 
 		emit Withdraw(msg.sender, amountBase, amountShares, now);
 	}
@@ -96,10 +99,11 @@ contract PooTogether is Ownable {
 		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
-		require(vault.transfer(msg.sender, amountShares));
 
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
+
+		require(vault.transfer(msg.sender, amountShares));
 
 		emit Withdraw(msg.sender, amountBase, amountShares, now);
 	}
