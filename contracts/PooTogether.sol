@@ -54,25 +54,7 @@ contract PooTogether is Ownable {
 	// Deposits/withdrawals get locked once the secret is committed, so that the operator can't manipulate results using their inside knowledge
 	// of the secret, after the entropy block has been mined
 	// Miners can't manipulate cause they don't know the secret
-
-	// Why we can deposit/withdraw both base and shares
-	// cause with different vaults different things make sense - eg with yUSD most people would be holding yUSD
-	// while with USDT, most people might be holding USDT rather than the vault share token (yUSDT)
-	function deposit(uint amountBase) external {
-		require(lockedUntilBlock == 0, "pool is locked");
-
-		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
-		totalBase = totalBase.add(amountBase);
-
-		IERC20 token = IERC20(vault.token());
-		require(token.transferFrom(msg.sender, address(this), amountBase));
-		token.approve(address(vault), amountBase);
-		vault.deposit(amountBase);
-
-		emit Deposit(msg.sender, amountBase, toShares(amountBase), now);
-	}
-
-	function depositShares(uint amountShares) external {
+	function deposit(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
 
@@ -84,25 +66,7 @@ contract PooTogether is Ownable {
 		emit Deposit(msg.sender, amountBase, amountShares, now);
 	}
 
-	function withdraw(uint amountBase) external {
-		require(lockedUntilBlock == 0, "pool is locked");
-		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
-
-		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
-		totalBase = totalBase.sub(amountBase);
-
-		// XXX this may be a problem cause shares rounds down
-		uint amountShares = toShares(amountBase);
-		vault.withdraw(amountShares);
-		// Because of the fees, we have to withdraw the exact base balance
-		IERC20 token = IERC20(vault.token());
-		uint balanceBase = token.balanceOf(address(this));
-		require(token.transfer(msg.sender, balanceBase));
-
-		emit Withdraw(msg.sender, balanceBase, amountShares, now);
-	}
-
-	function withdrawShares(uint amountShares) external {
+	function withdraw(uint amountShares) external {
 		require(lockedUntilBlock == 0, "pool is locked");
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
