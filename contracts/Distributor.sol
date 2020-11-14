@@ -40,6 +40,6 @@ contract Distributor {
 		IERC20(inputToken).approve(address(uniswap), total);
 		uniswap.swapExactTokensForTokens(total, uint(0), path, winner, block.timestamp);
 		// drop some $POO
-		//if (poo.allowance(pooDaddy, address(this)) >= POO_DROP_PER_DRAW)) poo.transferFrom(pooDaddy, winner, POO_DROP_PER_DRAW);
+		//if (msg.sender == address(PooTogether) && poo.allowance(pooDaddy, address(this)) >= POO_DROP_PER_DRAW)) poo.transferFrom(pooDaddy, winner, POO_DROP_PER_DRAW);
 	}
 }
