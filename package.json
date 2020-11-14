@@ -18,6 +18,7 @@
   "homepage": "https://github.com/TheLittleShit/pootogether-contracts#readme",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.2.0",
+    "ethers": "^5.0.19",
     "truffle": "^5.1.53"
   }
 }
