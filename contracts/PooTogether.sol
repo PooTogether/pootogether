@@ -124,15 +124,12 @@ contract PooTogether is Ownable {
 		uint skimmableShares = toShares(this.skimmableBase());
 		require(skimmableShares > 0, "no skimmable rewards");
 
-		// XXX if the distributor wants to receive the base then we withdraw the shares and transfer skimmable
+		// Send the tokens to the distributor directly, and it will spend them on .distribute() - cheaper than approve, transferFrom
 		require(vault.transfer(address(distributor), skimmableShares));
 
 		uint rand = entropy(secret);
 		address winner = winner(rand);
 		distributor.distribute(address(vault), rand, winner);
-
-		// @TODO - or just use the distributor to mint, but that needs to be done safely (msg.sender == )
-		//poo.mint(winner, pooPerDraw)
 	}
 
 	function unlock() external {
@@ -174,6 +171,7 @@ contract PooTogether is Ownable {
 	// recover any erroneously sent tokens
 	function recoverTokens(IERC20 token, uint amount) onlyOwner external {
 		require(address(token) != address(vault), "cannot withdraw vault tokens");
+		// no need to require() this - we don't care whether it was successful or not
 		token.transfer(msg.sender, amount);
 	}
 }
