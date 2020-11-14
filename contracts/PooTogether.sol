@@ -29,8 +29,9 @@ contract PooTogether is Ownable {
 	event Unlocked(uint time);
 
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times); we take the 40th to last block (~8 mins)
-	// Note: must be at least 40 for security properties to hold! We use `blockhash(block.number - 40)` for entropy to mitigate reorgs to manipulate the winner,
-	// but if the block taken is before the lock (LOCK_FOR_BLOCKS < 40), then the operator can manipulate the secret bsaed on the known block hash!
+	// Note: must be at least 40 for security properties to hold! We use `blockhash(lockedUntilBlock - 40)` for entropy to mitigate reorgs to manipulate the winner,
+	// but if the block taken is before the lock (LOCK_FOR_BLOCKS < 40), then the operator can manipulate the secret based on the known block hash!
+	// another requirement is that (UNLOCK_SAFETY_BLOCKS+LOCK_FOR_BLOCKS) < 256, otherwise we let the operator call draw() when the block hash is zero
 	// 46 blocks is around 10 minutes
 	uint public constant LOCK_FOR_BLOCKS = 46;
 	// The unlock safety is the amount of blocks we wait after lockedUntilBlock before *anyone* (not only the operator) can unlock
@@ -146,7 +147,9 @@ contract PooTogether is Ownable {
 	}
 
 	function entropy(bytes32 secret) internal view returns (uint256) {
-		return uint256(keccak256(abi.encodePacked(blockhash(block.number - 40), secret)));
+		// we have to use `lockedUntilBlock - 40` rather than `block.number - 40`, because in the latter we let the operator choose which block to
+		// mine the tx in, and therefore affect the outcome
+		return uint256(keccak256(abi.encodePacked(blockhash(lockedUntilBlock - 40), secret)));
 	}
 
 	function toShares(uint256 tokens) internal view returns (uint256) {
