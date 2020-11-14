@@ -96,9 +96,10 @@ contract PooTogether is Ownable {
 		vault.withdraw(amountShares);
 		// Because of the fees, we have to withdraw the exact base balance
 		IERC20 token = IERC20(vault.token());
-		require(token.transfer(msg.sender, token.balanceOf(address(this))));
+		uint balanceBase = token.balanceOf(address(this));
+		require(token.transfer(msg.sender, balanceBase));
 
-		emit Withdraw(msg.sender, amountBase, amountShares, now);
+		emit Withdraw(msg.sender, balanceBase, amountShares, now);
 	}
 
 	function withdrawShares(uint amountShares) external {
