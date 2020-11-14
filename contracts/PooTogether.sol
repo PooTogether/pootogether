@@ -164,4 +164,9 @@ contract PooTogether is Ownable {
 	function changeDistributor(DistribInterface _dist) onlyOwner external {
 		distributor = _dist;
 	}
+	// recover any erroneously sent tokens
+	function recoverTokens(IERC20 token) onlyOwner external {
+		require(address(token) != address(vault), "cannot withdraw vault tokens");
+		token.transfer(msg.sender, token.balanceOf(address(this)));
+	}
 }
