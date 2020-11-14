@@ -28,14 +28,19 @@ contract PooTogether is Ownable {
 	event Locked(uint untilBlock, uint time);
 	event Unlocked(uint time);
 
-	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times); we take the 40th to last block (~8 mins)
-	// Note: must be at least 40 for security properties to hold! We use `blockhash(lockedUntilBlock - 40)` for entropy to mitigate reorgs to manipulate the winner,
-	// but if the block taken is before the lock (LOCK_FOR_BLOCKS < 40), then the operator can manipulate the secret based on the known block hash!
-	// another requirement is that (UNLOCK_SAFETY_BLOCKS+LOCK_FOR_BLOCKS) < 256, otherwise we let the operator call draw() when the block hash is zero
+	// We use `blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW)` for additional entropy for two reasons
+	// 1) to mitigate reorgs to manipulate the winner - we will have at least BLOCKS_WAIT_TO_DRAW passed before draw opens
+	// 2) once the operator commits to a secret, lockedUntilBlock gets set so `lockedUntilBlock - BLOCKS_WAIT_TO_DRAW` is fixed, so the operator cannot manipulate that
+
+	// After we lock, the 10th block is the one we use for randomness
+	uint public constant BLOCK_FOR_RANDOMNESS = 10;
+	uint public constant BLOCKS_WAIT_TO_DRAW = 36;
 	// 46 blocks is around 10 minutes
-	uint public constant LOCK_FOR_BLOCKS = 46;
-	// The unlock safety is the amount of blocks we wait after lockedUntilBlock before *anyone* (not only the operator) can unlock
-	uint public constant UNLOCK_SAFETY_BLOCKS = 200;
+	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW;
+	// This allows anyone to unlock the pool w/o a draw if the draw hasn't happened in a certain amount of time, ensuring users can withdraw their funds
+	uint public constant BLOCKS_UNTIL_DRAW_CLOSES = 200;
+	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times)
+	// This must be true: (BLOCK_FOR_RANDOMNESS+BLOCKS_WAIT_TO_DRAW+BLOCKS_UNTIL_DRAW_CLOSES) < 256, to ensure the operator cannot draw when blockhash() returns zero
 
 	bytes32 public constant TREE_KEY = "PooPoo";
 
@@ -108,7 +113,7 @@ contract PooTogether is Ownable {
 	function draw(bytes32 secret) onlyOwner external {
 		require(lockedUntilBlock > 0, "pool is not locked");
 		require(block.number >= lockedUntilBlock, "pool is not unlockable yet");
-		require(block.number < (lockedUntilBlock + UNLOCK_SAFETY_BLOCKS), "draw window is closed");
+		require(block.number < (lockedUntilBlock + BLOCKS_UNTIL_DRAW_CLOSES), "draw window is closed");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
 		unlockInternal();
@@ -131,7 +136,7 @@ contract PooTogether is Ownable {
 
 	function unlock() external {
 		require(lockedUntilBlock > 0, "pool is not locked");
-		require(block.number >= (lockedUntilBlock + UNLOCK_SAFETY_BLOCKS), "pool is not publicly unlockable yet");
+		require(block.number >= (lockedUntilBlock + BLOCKS_UNTIL_DRAW_CLOSES), "pool is not publicly unlockable yet");
 		unlockInternal();
 	}
 
@@ -148,9 +153,7 @@ contract PooTogether is Ownable {
 	}
 
 	function entropy(bytes32 secret) internal view returns (uint256) {
-		// we have to use `lockedUntilBlock - 40` rather than `block.number - 40`, because in the latter we let the operator choose which block to
-		// mine the tx in, and therefore affect the outcome
-		return uint256(keccak256(abi.encodePacked(blockhash(lockedUntilBlock - 40), secret)));
+		return uint256(keccak256(abi.encodePacked(blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW), secret)));
 	}
 
 	function toShares(uint256 tokens) internal view returns (uint256) {
