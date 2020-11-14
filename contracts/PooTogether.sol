@@ -132,6 +132,7 @@ contract PooTogether is Ownable {
 	}
 
 	function lock(bytes32 _secretHash) onlyOwner external {
+		require(lockedUntilBlock == 0, "pool is already locked");
 		lockedUntilBlock = block.number + LOCK_FOR_BLOCKS;
 		secretHash = _secretHash;
 		emit Locked(lockedUntilBlock, now);
@@ -145,6 +146,7 @@ contract PooTogether is Ownable {
 		unlockInternal();
 
 		// skim the revenue and distribute it
+		// Note: if there are no participants, this would always be 0
 		uint skimmableShares = toShares(this.skimmableBase());
 		require(skimmableShares > 0, "no skimmable rewards");
 
