@@ -8,7 +8,7 @@ contract Distributor {
 	function shitcoinMenu(uint entropy) public pure returns (address) { 
 		uint idx = UniformRandomNumber.uniform(
 			entropy,
-			11 /* WARNING: ADJUST BASED ON TOKEN COUNT!! */
+			14 /* WARNING: ADJUST BASED ON TOKEN COUNT!! */
 		);
 		if (idx == 0) return address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984); // UNI 
 		if (idx == 1) return address(0x62359Ed7505Efc61FF1D56fEF82158CcaffA23D7); // CORE
@@ -21,6 +21,9 @@ contract Distributor {
 		if (idx == 8) return address(0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD); // LRC
 		if (idx == 9) return address(0x584bC13c7D411c00c01A62e8019472dE68768430); // HEGIC
 		if (idx == 10) return address(0x69692D3345010a207b759a7D1af6fc7F38b35c5E); // CHADS
+		if (idx == 11) return address(0x20945cA1df56D237fD40036d47E866C7DcCD2114); // NSURE
+		if (idx == 12) return address(0x066798d9ef0833ccc719076Dab77199eCbd178b0); // SAKE
+		if (idx == 13) return address(0x8Ab7404063Ec4DBcfd4598215992DC3F8EC853d7); // AKRO
 		// @TODO POO - 2x chance to get that
 		return address(0);
 	}
