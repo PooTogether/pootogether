@@ -98,7 +98,8 @@ contract PooTogether is Ownable {
 	//
 	function skimmableBase() public view returns (uint) {
 		uint ourWorthInBase = toBase(vault.balanceOf(address(this)));
-		// XXX what happens if somehow ourWorthInBase < totalBase - this shouldn't happen
+		// This will fail if somehow ourWorthInBase < totalBase - this shouldn't happen, unless something goes wrong with yearn
+		// if this DOES happen, draws won't be possible but withdrawing your funds will be
 		uint skimmable = ourWorthInBase.sub(totalBase);
 		return skimmable;
 	}
