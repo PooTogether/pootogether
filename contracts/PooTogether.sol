@@ -5,7 +5,7 @@ import "./Interfaces.sol";
 import "./Ownable.sol";
 
 interface DistribInterface {
-	function distribute(uint entropy, address winner) external;
+	function distribute(address inputToken, uint entropy, address winner) external;
 }
 
 contract PooTogether is Ownable {
@@ -122,7 +122,7 @@ contract PooTogether is Ownable {
 
 		uint rand = entropy(secret);
 		address winner = winner(rand);
-		distributor.distribute(rand, winner);
+		distributor.distribute(address(vault), rand, winner);
 
 		// @TODO - or just use the distributor to mint, but that needs to be done safely (msg.sender == )
 		//poo.mint(winner, pooPerDraw)

@@ -3,7 +3,6 @@ import "./UniformRandomNumber.sol";
 
 contract Distributor {
 	Uni public constant uniswap = Uni(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-	yVaultInterface public constant vault = yVaultInterface(0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c);
 	address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 	
 	function shitcoinMenu(uint entropy) public pure returns (address) { 
@@ -26,13 +25,14 @@ contract Distributor {
 		return address(0);
 	}
 	
-	function distribute(uint entropy, address winner) external {
+	function distribute(address inputToken, uint entropy, address winner) external {
 		address[] memory path = new address[](3);
-		path[0] = address(vault);
+		path[0] = inputToken;
 		path[1] = WETH;
 		path[2] = shitcoinMenu(entropy);
-		uint total = vault.balanceOf(address(this));
-		vault.approve(address(uniswap), total);
+		uint total = IERC20(inputToken).balanceOf(address(this));
+		// That's not a safe approval call, but the entire thing will revert w/o damage if it's failing silently
+		IERC20(inputToken).approve(address(uniswap), total);
 		uniswap.swapExactTokensForTokens(total, uint(0), path, winner, block.timestamp);
 	}
 }
