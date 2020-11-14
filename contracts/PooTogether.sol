@@ -91,13 +91,12 @@ contract PooTogether is Ownable {
 		setUserBase(msg.sender, perUserBase[msg.sender].sub(amountBase));
 		totalBase = totalBase.sub(amountBase);
 
-		// XXX this may be a problem cause shares sounds down
+		// XXX this may be a problem cause shares rounds down
 		uint amountShares = toShares(amountBase);
 		vault.withdraw(amountShares);
-		// XXX vaults are supposed to have fees but looking at the withdraw function of
-		// yUSD (https://etherscan.io/address/0x5dbcf33d8c2e976c6b560249878e6f1491bca25c#code),
-		// it appears that the entire `r` is sent which is `(balance().mul(_shares)).div(totalSupply())`, so we're all good with yUSD
-		require(IERC20(vault.token()).transfer(msg.sender, amountBase));
+		// Because of the fees, we have to withdraw the exact base balance
+		IERC20 token = IERC20(vault.token());
+		require(token.transfer(msg.sender, token.balanceOf(address(this))));
 
 		emit Withdraw(msg.sender, amountBase, amountShares, now);
 	}
