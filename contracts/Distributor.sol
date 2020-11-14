@@ -39,5 +39,7 @@ contract Distributor {
 		// That's not a safe approval call, but the entire thing will revert w/o damage if it's failing silently
 		IERC20(inputToken).approve(address(uniswap), total);
 		uniswap.swapExactTokensForTokens(total, uint(0), path, winner, block.timestamp);
+		// drop some $POO
+		//if (poo.allowance(pooDaddy, address(this)) >= POO_DROP_PER_DRAW)) poo.transferFrom(pooDaddy, winner, POO_DROP_PER_DRAW);
 	}
 }
