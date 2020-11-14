@@ -15,9 +15,6 @@ contract PooTogether is Ownable {
 	// base = the base token of the vault (vault.token)
 	// share = the share tokeni, i.e. the vault token itself
 	// example: base is yCrv, share is yUSD
-
-	bytes32 public constant TREE_KEY = "PooPoo";
-
 	uint public totalBase;
 	mapping (address => uint) public perUserBase;
 	yVaultInterface public immutable vault;
@@ -38,6 +35,8 @@ contract PooTogether is Ownable {
 	uint public constant LOCK_FOR_BLOCKS = 46;
 	// The unlock safety is the amount of blocks we wait after lockedUntilBlock before *anyone* (not only the operator) can unlock
 	uint public constant UNLOCK_SAFETY_BLOCKS = 200;
+
+	bytes32 public constant TREE_KEY = "PooPoo";
 
 	using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
 	SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees;
