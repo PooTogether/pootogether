@@ -108,6 +108,7 @@ contract PooTogether is Ownable {
 	function draw(bytes32 secret) onlyOwner external {
 		require(lockedUntilBlock > 0, "pool is not locked");
 		require(block.number >= lockedUntilBlock, "pool is not unlockable yet");
+		require(block.number < (lockedUntilBlock + UNLOCK_SAFETY_BLOCKS), "draw window is closed");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
 		unlockInternal();
