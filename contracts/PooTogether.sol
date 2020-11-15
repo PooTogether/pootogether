@@ -118,9 +118,9 @@ contract PooTogether is Ownable {
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
 		// Needs to be called before unlockInternal
-		bytes32 sourceA = blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW);
-		require(sourceA != 0, "blockhash returned 0"); // should never happen if all constants are correct (see above)
-		uint rand = entropy(sourceA, secret);
+		bytes32 hash = blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW);
+		require(hash != 0, "blockhash returned 0"); // should never happen if all constants are correct (see above)
+		uint rand = entropy(hash, secret);
 
 		unlockInternal();
 
