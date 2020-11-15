@@ -2,6 +2,7 @@
 // PooTogether: the best no-loss shitcoin lottery
 // https://www.pootogether.com
 // https://twitter.com/pootogether
+pragma solidity ^0.6.12;
 import "./SortitionSumTreeFactory.sol";
 import "./UniformRandomNumber.sol";
 import "./SafeMath.sol";
