@@ -34,7 +34,7 @@ async function main() {
 	console.log(`secret hash: ${hexlify(secretHash)}`)
 	const tx = await Poo.lock(secretHash)
 	console.log(await tx.wait())
-	await new Promise(r => setTimeout(r, 660000)) // 11 mins
+	await new Promise(r => setTimeout(r, 720000)) // 12 mins
 	const txDraw = await Poo.draw(secret)
 	console.log(await tx.wait())
 }
