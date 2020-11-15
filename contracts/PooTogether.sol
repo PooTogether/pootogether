@@ -28,18 +28,17 @@ contract PooTogether is Ownable {
 	event Locked(uint unlocksAtBlock, uint time);
 	event Draw(address winner, uint amountShares, uint time);
 
-	// We use `blockhash(unlocksAtBlock - (BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES))` for additional entropy for two reasons
+	// We use `blockhash(unlocksAtBlock - (BLOCKS_WAIT_TO_DRAW + BLOCKS_DRAW_WINDOW))` for additional entropy for two reasons
 	// 1) to mitigate reorgs to manipulate the winner - we will have at least BLOCKS_WAIT_TO_DRAW passed before draw opens
 	// 2) once the operator commits to a secret, unlocksAtBlock gets set so this block number is fixed, so the operator cannot manipulate that
 
 	// After we lock, the 10th block is the one we use for randomness
-	// The total draw window is 46 blocks
-	// 46 blocks is around 10 minutes
+	// The total draw window is 46 blocks - that's around 10 minutes
 	uint public constant BLOCK_FOR_RANDOMNESS = 10;
 	uint public constant BLOCKS_WAIT_TO_DRAW = 36;
 	// The pool unlocks automatically w/o a draw if the draw hasn't happened in a certain amount of time, ensuring users can withdraw their funds
-	uint public constant BLOCKS_UNTIL_DRAW_CLOSES = 200;
-	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES;
+	uint public constant BLOCKS_DRAW_WINDOW = 200;
+	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW + BLOCKS_DRAW_WINDOW;
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times)
 	// This must be true: LOCKS_FOR_BLOCKS < 256, to ensure the operator cannot draw when blockhash() returns zero
 	// and BLOCKS_BETWEEN_LOCKS > LOCKS_FOR_BLOCKS, otherwise the operator can relock while we're still locked (change the secret, keep the pool locked forever, etc.)
@@ -117,11 +116,11 @@ contract PooTogether is Ownable {
 
 	function draw(bytes32 secret) onlyOwner external {
 		require(block.number < unlocksAtBlock, "pool is not locked");
-		require(block.number >= unlocksAtBlock.sub(BLOCKS_UNTIL_DRAW_CLOSES), "pool is not in draw window yet");
+		require(block.number >= unlocksAtBlock.sub(BLOCKS_DRAW_WINDOW), "pool is not in draw window yet");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
 		// Needs to be called before setting unlocksAtBlock 
-		bytes32 hash = blockhash(unlocksAtBlock.sub(BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES));
+		bytes32 hash = blockhash(unlocksAtBlock.sub(BLOCKS_WAIT_TO_DRAW + BLOCKS_DRAW_WINDOW));
 		require(hash != 0, "blockhash returned 0"); // should never happen if all constants are correct (see above)
 		uint rand = entropy(hash, secret);
 
