@@ -1,3 +1,7 @@
+// Copyright 2020 PooDaddy
+// https://www.pootogether.com
+// https://twitter.com/pootogether
+
 import "./Interfaces.sol";
 import "./UniformRandomNumber.sol";
 

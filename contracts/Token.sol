@@ -1,3 +1,6 @@
+// PooTogether
+// https://www.pootogether.com
+// https://twitter.com/pootogether
 import "./SafeMath.sol";
 
 // Borrowed from Uniswap v2
