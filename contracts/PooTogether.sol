@@ -117,6 +117,9 @@ contract PooTogether is Ownable {
 		require(block.number < (lockedUntilBlock + BLOCKS_UNTIL_DRAW_CLOSES), "draw window is closed");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
+		// Needs to be called before unlockInternal
+		uint rand = entropy(secret);
+
 		unlockInternal();
 
 		// skim the revenue and distribute it
@@ -127,7 +130,6 @@ contract PooTogether is Ownable {
 		// Send the tokens to the distributor directly, and it will spend them on .distribute() - cheaper than approve, transferFrom
 		require(vault.transfer(address(distributor), skimmableShares));
 
-		uint rand = entropy(secret);
 		address winner = winner(rand);
 		distributor.distribute(address(vault), rand, winner);
 	}
