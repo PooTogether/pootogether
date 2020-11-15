@@ -1,4 +1,4 @@
-// PooTogether
+// PooTogether: the best no-loss shitcoin lottery
 // https://www.pootogether.com
 // https://twitter.com/pootogether
 import "./SafeMath.sol";

@@ -1,4 +1,5 @@
 // Copyright 2020 PooDaddy
+// PooTogether: the best no-loss shitcoin lottery
 // https://www.pootogether.com
 // https://twitter.com/pootogether
 import "./SortitionSumTreeFactory.sol";
