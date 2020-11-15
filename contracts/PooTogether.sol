@@ -118,7 +118,9 @@ contract PooTogether is Ownable {
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
 		// Needs to be called before unlockInternal
-		uint rand = entropy(secret);
+		bytes32 sourceA = blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW);
+		require(sourceA != 0, "blockhash returned 0"); // should never happen if all constants are correct (see above)
+		uint rand = entropy(sourceA, secret);
 
 		unlockInternal();
 
@@ -152,8 +154,8 @@ contract PooTogether is Ownable {
 		return address(uint256(sortitionSumTrees.draw(TREE_KEY, randomToken)));
 	}
 
-	function entropy(bytes32 secret) internal view returns (uint256) {
-		return uint256(keccak256(abi.encodePacked(blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW), secret)));
+	function entropy(bytes32 sourceA, bytes32 sourceB) internal pure returns (uint256) {
+		return uint256(keccak256(abi.encodePacked(sourceA, sourceB)));
 	}
 
 	function toShares(uint256 tokens) internal view returns (uint256) {
