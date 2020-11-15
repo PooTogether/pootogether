@@ -19,28 +19,32 @@ contract PooTogether is Ownable {
 	mapping (address => uint) public perUserBase;
 	yVaultInterface public immutable vault;
 	DistribInterface public distributor;
-	uint public lockedUntilBlock;
+	uint public unlocksAtBlock;
 	bytes32 public secretHash;
 
 	// events
 	event Deposit(address indexed user, uint amountBase, uint amountShares, uint time);
 	event Withdraw(address indexed user, uint amountBase, uint amountShares, uint time);
-	event Locked(uint untilBlock, uint time);
-	event Unlocked(uint time);
+	event Locked(uint unlocksAtBlock, uint time);
+	event Draw(address winner, uint amountShares, uint time);
 
-	// We use `blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW)` for additional entropy for two reasons
+	// We use `blockhash(unlocksAtBlock - (BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES))` for additional entropy for two reasons
 	// 1) to mitigate reorgs to manipulate the winner - we will have at least BLOCKS_WAIT_TO_DRAW passed before draw opens
-	// 2) once the operator commits to a secret, lockedUntilBlock gets set so `lockedUntilBlock - BLOCKS_WAIT_TO_DRAW` is fixed, so the operator cannot manipulate that
+	// 2) once the operator commits to a secret, unlocksAtBlock gets set so this block number is fixed, so the operator cannot manipulate that
 
 	// After we lock, the 10th block is the one we use for randomness
+	// The total draw window is 46 blocks
+	// 46 blocks is around 10 minutes
 	uint public constant BLOCK_FOR_RANDOMNESS = 10;
 	uint public constant BLOCKS_WAIT_TO_DRAW = 36;
-	// 46 blocks is around 10 minutes
-	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW;
-	// This allows anyone to unlock the pool w/o a draw if the draw hasn't happened in a certain amount of time, ensuring users can withdraw their funds
+	// The pool unlocks automatically w/o a draw if the draw hasn't happened in a certain amount of time, ensuring users can withdraw their funds
 	uint public constant BLOCKS_UNTIL_DRAW_CLOSES = 200;
+	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES;
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times)
-	// This must be true: (BLOCK_FOR_RANDOMNESS+BLOCKS_WAIT_TO_DRAW+BLOCKS_UNTIL_DRAW_CLOSES) < 256, to ensure the operator cannot draw when blockhash() returns zero
+	// This must be true: LOCKS_FOR_BLOCKS < 256, to ensure the operator cannot draw when blockhash() returns zero
+	// and BLOCKS_BETWEEN_LOCKS > LOCKS_FOR_BLOCKS, otherwise the operator can relock while we're still locked (change the secret, keep the pool locked forever, etc.)
+	uint public constant BLOCKS_BETWEEN_LOCKS = 1000;
+
 
 	bytes32 public constant TREE_KEY = "PooPoo";
 
@@ -60,7 +64,7 @@ contract PooTogether is Ownable {
 	// of the secret, after the entropy block has been mined
 	// Miners can't manipulate cause they don't know the secret
 	function deposit(uint amountShares) external {
-		require(lockedUntilBlock == 0, "pool is locked");
+		require(block.number >= unlocksAtBlock, "pool is locked");
 		uint amountBase = toBase(amountShares);
 
 		setUserBase(msg.sender, perUserBase[msg.sender].add(amountBase));
@@ -72,7 +76,7 @@ contract PooTogether is Ownable {
 	}
 
 	function withdraw(uint amountShares) external {
-		require(lockedUntilBlock == 0, "pool is locked");
+		require(block.number >= unlocksAtBlock, "pool is locked");
 		uint amountBase = toBase(amountShares);
 		require(perUserBase[msg.sender] >= amountBase, "insufficient funds");
 
@@ -105,24 +109,24 @@ contract PooTogether is Ownable {
 	}
 
 	function lock(bytes32 _secretHash) onlyOwner external {
-		require(lockedUntilBlock == 0, "pool is already locked");
-		lockedUntilBlock = block.number + LOCK_FOR_BLOCKS;
+		require(block.number > (unlocksAtBlock + BLOCKS_BETWEEN_LOCKS), "pool has been recently locked");
+		unlocksAtBlock = block.number + LOCK_FOR_BLOCKS;
 		secretHash = _secretHash;
-		emit Locked(lockedUntilBlock, now);
+		emit Locked(unlocksAtBlock, now);
 	}
 
 	function draw(bytes32 secret) onlyOwner external {
-		require(lockedUntilBlock > 0, "pool is not locked");
-		require(block.number >= lockedUntilBlock, "pool is not unlockable yet");
-		require(block.number < (lockedUntilBlock + BLOCKS_UNTIL_DRAW_CLOSES), "draw window is closed");
+		require(block.number < unlocksAtBlock, "pool is not locked");
+		require(block.number >= unlocksAtBlock.sub(BLOCKS_UNTIL_DRAW_CLOSES), "pool is not in draw window yet");
 		require(keccak256(abi.encodePacked(secret)) == secretHash, "secret does not match");
 
-		// Needs to be called before unlockInternal
-		bytes32 hash = blockhash(lockedUntilBlock - BLOCKS_WAIT_TO_DRAW);
+		// Needs to be called before setting unlocksAtBlock 
+		bytes32 hash = blockhash(unlocksAtBlock.sub(BLOCKS_WAIT_TO_DRAW + BLOCKS_UNTIL_DRAW_CLOSES));
 		require(hash != 0, "blockhash returned 0"); // should never happen if all constants are correct (see above)
 		uint rand = entropy(hash, secret);
 
-		unlockInternal();
+		unlocksAtBlock = block.number;
+		secretHash = bytes32(0);
 
 		// skim the revenue and distribute it
 		// Note: if there are no participants, this would always be 0
@@ -134,19 +138,8 @@ contract PooTogether is Ownable {
 
 		address winner = winner(rand);
 		distributor.distribute(address(vault), rand, winner);
-	}
 
-	function unlock() external {
-		require(lockedUntilBlock > 0, "pool is not locked");
-		require(block.number >= (lockedUntilBlock + BLOCKS_UNTIL_DRAW_CLOSES), "pool is not publicly unlockable yet");
-		unlockInternal();
-	}
-
-	function unlockInternal() internal {
-		// unlock pool
-		lockedUntilBlock = 0;
-		secretHash = bytes32(0);
-		emit Unlocked(now);
+		emit Draw(winner, skimmableShares, now);
 	}
 
 	function winner(uint entropy) public view returns (address) {
