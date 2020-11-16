@@ -23,9 +23,9 @@ async function main() {
 		console.log(`Prize under threshold, nothing to do!`)
 		return
 	}
-	const lockedUntilBlock = await Poo.lockedUntilBlock()
-	if (lockedUntilBlock.gt(0)) {
-		console.log(`Pool already locked`)
+	const [unlocksAtBlock, block] = await Promise.all([Poo.unlocksAtBlock(), provider.getBlockNumber()])
+	if (unlocksAtBlock.add(1000).gte(block)) {
+		console.log(`Pool was already recently locked`)
 		return
 	}
 	const secret = randomBytes(32)
@@ -36,7 +36,7 @@ async function main() {
 	console.log(await tx.wait())
 	await new Promise(r => setTimeout(r, 720000)) // 12 mins
 	const txDraw = await Poo.draw(secret)
-	console.log(await tx.wait())
+	console.log(await txDraw.wait())
 }
 
 
