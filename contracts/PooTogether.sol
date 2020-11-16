@@ -46,7 +46,7 @@ contract PooTogether is Ownable {
 	uint public constant LOCK_FOR_BLOCKS = BLOCK_FOR_RANDOMNESS + BLOCKS_WAIT_TO_DRAW + BLOCKS_DRAW_WINDOW;
 	// NOTE: we can only access the hash for the last 256 blocks (~ 55 minutes assuming 13.04s block times)
 	// This must be true: LOCKS_FOR_BLOCKS < 256, to ensure the operator cannot draw when blockhash() returns zero
-	// and BLOCKS_BETWEEN_LOCKS > LOCKS_FOR_BLOCKS, otherwise the operator can relock while we're still locked (change the secret, keep the pool locked forever, etc.)
+	// Finally, we have the number of blocks that need to pass from the unlock point to a new lock being possible
 	uint public constant BLOCKS_BETWEEN_LOCKS = 1000;
 
 
