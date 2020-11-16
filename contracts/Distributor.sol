@@ -35,6 +35,8 @@ contract Distributor {
 		return address(0);
 	}
 	
+	// This contract is not meant to hold any tokens at any point - you're supposed to call distribute() immediately after receiving tokens
+	// However, in case tokens are sent to it accidently and stuck, anyone can recover them by calling distribute() with the given inputToken
 	function distribute(address inputToken, uint entropy, address winner) external {
 		address[] memory path = new address[](3);
 		path[0] = inputToken;
