@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 // Copyright 2020 PooDaddy
 // PooTogether: the best no-loss shitcoin lottery
 // https://www.pootogether.com

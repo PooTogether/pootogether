@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.6.12;
 
 library UniformRandomNumber {
-  /// @author Brendan Asselstine
   /// @notice Select a random number without modulo bias using a random seed and upper bound
   /// @param _entropy The seed for randomness
   /// @param _upperBound The upper bound of the desired number
