@@ -10,30 +10,43 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 
 // getPricePerFullShare
 
+async function getStats() {
+	const [staked, skimmableBase] = await Promise.all([
+		Vault.balanceOf(PooTogether.address),
+		PooTogether.skimmableBase()
+	])
+	return { staked, skimmableBase }
+}
+
 function App() {
-	const [stats, setStats] = useState({ staked: BigNumber.from(0) })
+	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0) })
 
 	useEffect(() => {
-		(async () => {
-			setStats({ staked: await Vault.balanceOf(PooTogether.address) })
-		})()
+		getStats().then(setStats)
 	}, [])
 
 	return (
 		 <div className="App">
 			<header className="App-header">
-			  <p>{formatUnits(stats.staked, 18)}</p>
-			  <a
-				 className="App-link"
-				 href="https://reactjs.org"
-				 target="_blank"
-				 rel="noopener noreferrer"
-			  >
-				 Learn React
-			  </a>
+				<p>{formatUnits(stats.staked, 18)}</p>
+				<p>{formatUnits(stats.skimmableBase, 18)}</p>
+				<Deposit/>
+				<Withdraw/>
 			</header>
 		 </div>
 	);
+}
+
+function Deposit() {
+	return InOrOut()
+}
+
+function Withdraw() {
+	return InOrOut()
+}
+
+function InOrOut() {
+	return (<input></input>)
 }
 
 export default App;
