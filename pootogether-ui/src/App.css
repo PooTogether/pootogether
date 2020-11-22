@@ -8,6 +8,7 @@ html {
 	color: #ffffff;
 	background-repeat: no-repeat;
 	min-height: 100%;
+	font-family: Lobster;
 }
 .poo {
 	width: 400px;
@@ -25,3 +26,17 @@ html {
 	font-size: 2em;
 }
 
+button {
+	background-color: white;
+	color: #ff8cf1;
+	font-weight: bold;
+	font-size: 1.5em;
+	padding: 1em 1.5em;
+	border-radius: 20px;
+	outline: 0px;
+	border: 0px;
+	cursor: pointer;
+}
+button:active {
+	transform: scale(0.95);
+}

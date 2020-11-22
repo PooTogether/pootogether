@@ -1,5 +1,5 @@
 import './App.css';
-import { Contract, getDefaultProvider, BigNumber, utils } from 'ethers'
+import { Contract, getDefaultProvider, Web3Provider, BigNumber, providers, utils } from 'ethers'
 import { useState, useEffect } from 'react'
 const { formatUnits, parseUnits } = utils
 const provider = getDefaultProvider('homestead')
@@ -10,6 +10,13 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 
 // getPricePerFullShare
 
+// TODOs
+// cleanup
+// depsit/withdraw
+// cards styling
+// lobster font
+// errors
+// connect walet
 const colors = {
 	text: '#ffffff',
 	gradient1: '#a6fffb',
@@ -40,6 +47,7 @@ function App() {
 		 <div className="App">
 			<header className="App-header">
 				<div class="poo"/>
+				<Button label="connect wallet"/>
 				<Deposit/>
 				<Withdraw/>
 				<RewardStats stats={stats}/>
@@ -62,11 +70,27 @@ function InOrOut({ label, maxAmount, onAction }) {
 	</div>)
 }
 
+// @TODO
+function Button({ label }) {
+	return (<button>{label}</button>)
+}
+
 function RewardStats({ stats }) {
 	return (<div class="card">
 		<p>{formatUnits(stats.staked, 18)}</p>
 		<p>{formatUnits(stats.skimmableBase, 18)}</p>
 	</div>)
 }
+
+// @TODO refactor
+async function getSigner() {
+        if (typeof window.ethereum !== 'undefined') await window.ethereum.enable()
+        if (!window.web3) throw new Error('no web3')
+
+        const provider = new providers.Web3Provider(window.web3.currentProvider)
+        const signer = provider.getSigner()
+        return signer
+}
+
 
 export default App;
