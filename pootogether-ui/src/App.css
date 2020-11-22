@@ -22,10 +22,10 @@ html {
 .card {
 	border-radius: 20px;
 	border: 6px solid #ffffff;
-	width: 300px;
-	margin: 2em auto;
+	width: 500px;
+	margin: 1em auto;
 	font-size: 2em;
-	flex-width: 2;
+	flex: 1;
 }
 
 button {
@@ -47,6 +47,5 @@ button:active {
 }
 .App {
 	display: flex;
-	flex: 3 1 300px;
 	flex-direction: column;
 }
