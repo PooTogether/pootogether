@@ -10,6 +10,13 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 
 // getPricePerFullShare
 
+const colors = {
+	text: '#ffffff',
+	gradient1: '#a6fffb',
+	gradient2: '#ff8cf1',
+	border: '#ffffff'
+}
+
 async function getStats() {
 	const [staked, skimmableBase] = await Promise.all([
 		Vault.balanceOf(PooTogether.address),
@@ -46,13 +53,13 @@ function Withdraw() {
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
-	return (<div style={{ borderRadius: 3, border: '3px solid yellow' }}>
+	return (<div class="card">
 		<input></input>
 	</div>)
 }
 
 function RewardStats({ stats }) {
-	return (<div style={{ borderRadius: 3, border: '3px solid yellow' }}>
+	return (<div class="card">
 		<p>{formatUnits(stats.staked, 18)}</p>
 		<p>{formatUnits(stats.skimmableBase, 18)}</p>
 	</div>)
