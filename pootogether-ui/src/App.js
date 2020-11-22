@@ -1,5 +1,5 @@
 import './App.css';
-import { Contract, getDefaultProvider, Web3Provider, BigNumber, providers, utils } from 'ethers'
+import { Contract, getDefaultProvider, BigNumber, providers, utils } from 'ethers'
 import { useState, useEffect } from 'react'
 const { formatUnits, parseUnits } = utils
 const provider = getDefaultProvider('homestead')

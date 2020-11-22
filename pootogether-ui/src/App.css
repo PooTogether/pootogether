@@ -8,11 +8,14 @@ html {
 	color: #ffffff;
 	background-repeat: no-repeat;
 	min-height: 100%;
+}
+body {
+
 	font-family: Lobster;
 }
 .poo {
-	width: 400px;
-	height: 400px;
+	width: 350px;
+	height: 350px;
 	background-image: url('./poo.png');
 	background-repeat: no-repeat;
 	background-size: 100%;
@@ -41,10 +44,12 @@ button {
 	cursor: pointer;
 	max-width: 400px;
 	margin: 0.5em auto;
+	font-family: Lobster;
 }
 button:active {
 	transform: scale(0.95);
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+	/* TODO inner shadow */
+	box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
 }
 .App {
 	display: flex;
