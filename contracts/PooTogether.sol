@@ -80,6 +80,7 @@ contract PooTogether is Ownable {
 		emit Deposit(msg.sender, amountBase, amountShares, now);
 	}
 
+	// @TODO we should consider withdrawAll()
 	function withdraw(uint amountShares) external {
 		require(block.number >= unlocksAtBlock, "pool is locked");
 		uint amountBase = toBase(amountShares);

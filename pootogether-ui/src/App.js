@@ -21,6 +21,7 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // better button styling
 // github pages account, deploy
 // check for cname leaks
+// show shitcoin list
 const colors = {
 	text: '#ffffff',
 	gradient1: '#a6fffb',
@@ -59,16 +60,17 @@ function App() {
 }
 
 function Deposit() {
-	return InOrOut({})
+	return InOrOut({label: 'Deposit'})
 }
 
 function Withdraw() {
-	return InOrOut({})
+	return InOrOut({label: 'Withdraw'})
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
 	return (<div class="card">
-		<input></input>
+		<h2>{label}</h2>
+		<input type="number" value="0"></input>
 	</div>)
 }
 
