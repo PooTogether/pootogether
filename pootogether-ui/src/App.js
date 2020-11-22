@@ -23,30 +23,39 @@ function App() {
 
 	useEffect(() => {
 		getStats().then(setStats)
+		setInterval(() => getStats().then(setStats), 30000)
 	}, [])
 
 	return (
 		 <div className="App">
 			<header className="App-header">
-				<p>{formatUnits(stats.staked, 18)}</p>
-				<p>{formatUnits(stats.skimmableBase, 18)}</p>
 				<Deposit/>
 				<Withdraw/>
+				<RewardStats stats={stats}/>
 			</header>
 		 </div>
 	);
 }
 
 function Deposit() {
-	return InOrOut()
+	return InOrOut({})
 }
 
 function Withdraw() {
-	return InOrOut()
+	return InOrOut({})
 }
 
-function InOrOut() {
-	return (<input></input>)
+function InOrOut({ label, maxAmount, onAction }) {
+	return (<div style={{ borderRadius: 3, border: '3px solid yellow' }}>
+		<input></input>
+	</div>)
+}
+
+function RewardStats({ stats }) {
+	return (<div style={{ borderRadius: 3, border: '3px solid yellow' }}>
+		<p>{formatUnits(stats.staked, 18)}</p>
+		<p>{formatUnits(stats.skimmableBase, 18)}</p>
+	</div>)
 }
 
 export default App;
