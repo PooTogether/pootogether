@@ -16,14 +16,16 @@ html {
 	background-image: url('./poo.png');
 	background-repeat: no-repeat;
 	background-size: 100%;
+	margin: 1em auto;
 }
 /* TODO flex */
 .card {
-	border-radius: 3px;
-	border: 3px solid #ffffff;
+	border-radius: 20px;
+	border: 6px solid #ffffff;
 	width: 300px;
-	margin: 2em;
+	margin: 2em auto;
 	font-size: 2em;
+	flex-width: 2;
 }
 
 button {
@@ -36,7 +38,15 @@ button {
 	outline: 0px;
 	border: 0px;
 	cursor: pointer;
+	max-width: 400px;
+	margin: 0.5em auto;
 }
 button:active {
 	transform: scale(0.95);
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+}
+.App {
+	display: flex;
+	flex: 3 1 300px;
+	flex-direction: column;
 }

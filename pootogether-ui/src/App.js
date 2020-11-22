@@ -14,9 +14,13 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // cleanup
 // depsit/withdraw
 // cards styling
-// lobster font
+// lobster font: possibly embed
 // errors
 // connect walet
+// approvals 
+// better button styling
+// github pages account, deploy
+// check for cname leaks
 const colors = {
 	text: '#ffffff',
 	gradient1: '#a6fffb',
@@ -45,13 +49,11 @@ function App() {
 
 	return (
 		 <div className="App">
-			<header className="App-header">
-				<div class="poo"/>
-				<Button label="connect wallet"/>
-				<Deposit/>
-				<Withdraw/>
-				<RewardStats stats={stats}/>
-			</header>
+			<div class="poo"/>
+			<Button label="connect wallet"/>
+			<Deposit/>
+			<Withdraw/>
+			<RewardStats stats={stats}/>
 		 </div>
 	);
 }
