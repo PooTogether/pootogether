@@ -14,7 +14,6 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // cleanup
 // depsit/withdraw
 // cards styling
-// lobster font: possibly embed
 // errors
 // connect walet
 // approvals 
@@ -22,6 +21,7 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // github pages account, deploy
 // check for cname leaks
 // show shitcoin list
+// footer
 const colors = {
 	text: '#ffffff',
 	gradient1: '#a6fffb',
@@ -52,8 +52,10 @@ function App() {
 		 <div className="App">
 			<div class="poo"/>
 			<Button label="connect wallet"/>
-			<Deposit/>
-			<Withdraw/>
+			<div style={{ flex: 1, display: 'flex', maxWidth: 850, margin: 'auto' }}>
+				<Deposit/>
+				<Withdraw/>
+			</div>
 			<RewardStats stats={stats}/>
 		 </div>
 	);
@@ -68,9 +70,12 @@ function Withdraw() {
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
-	return (<div class="card">
-		<h2>{label}</h2>
-		<input type="number" value="0"></input>
+	return (<div class="card" style={{ display: 'flex' }}>
+		<div style={{ flex: 1 }}>
+			<input type="number" value="0"></input>
+			<div>Max amount: {label=='Deposit' ? 2000 : 0} yUSD</div>
+		</div>
+		<Button label={label}/>
 	</div>)
 }
 
@@ -80,9 +85,10 @@ function Button({ label }) {
 }
 
 function RewardStats({ stats }) {
-	return (<div class="card">
-		<p>{formatUnits(stats.staked, 18)}</p>
-		<p>{formatUnits(stats.skimmableBase, 18)}</p>
+	return (<div class="card stats">
+		<p>Total staked: {formatUnits(stats.staked, 18)} yUSD</p>
+		<p>Total prize pool: {formatUnits(stats.skimmableBase, 18)} yUSD</p>
+		<p>Your share (chance to win): 0%</p>
 	</div>)
 }
 

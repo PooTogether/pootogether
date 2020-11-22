@@ -21,22 +21,24 @@ body {
 	background-size: 100%;
 	margin: 1em auto;
 }
-/* TODO flex */
 .card {
 	border-radius: 20px;
-	border: 6px solid #ffffff;
+	background: white;
 	width: 500px;
-	margin: 1em auto;
-	font-size: 2em;
+	margin: 1em 1em;
 	padding: 0.5em;
 	flex: 1;
+	color: #ff8cf1;
+}
+.stats {
+	margin: 1em auto;
 }
 
 button {
 	background-color: white;
 	color: #ff8cf1;
 	font-weight: bold;
-	font-size: 1.5em;
+	font-size: 1.7em;
 	padding: 1em 1.5em;
 	border-radius: 20px;
 	outline: 0px;
@@ -54,4 +56,17 @@ button:active {
 .App {
 	display: flex;
 	flex-direction: column;
+}
+
+.card button {
+	color: white;
+	background: #ff8cf1;
+	background: linear-gradient(#a6fffb, #ff8cf1);
+}
+input {
+	border: 2px solid #ff8cf1;
+	border-radius: 20px;
+	height: 4em;
+	padding: 0.5em;
+	margin: 1.5em auto 1em;
 }
