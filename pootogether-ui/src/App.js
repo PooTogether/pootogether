@@ -39,6 +39,7 @@ function App() {
 	return (
 		 <div className="App">
 			<header className="App-header">
+				<div class="poo"/>
 				<Deposit/>
 				<Withdraw/>
 				<RewardStats stats={stats}/>

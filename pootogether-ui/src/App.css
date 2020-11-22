@@ -1,18 +1,27 @@
 body, html {
 	padding: 0px;
 	margin: 0px;
-	height: 100%;
 }
 html {
 	background: #ff8cf1;
 	background: linear-gradient(#a6fffb, #ff8cf1);
 	color: #ffffff;
 	background-repeat: no-repeat;
+	min-height: 100%;
 }
+.poo {
+	width: 400px;
+	height: 400px;
+	background-image: url('./poo.png');
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
+/* TODO flex */
 .card {
 	border-radius: 3px;
 	border: 3px solid #ffffff;
 	width: 300px;
 	margin: 2em;
+	font-size: 2em;
 }
 
