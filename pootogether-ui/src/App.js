@@ -28,9 +28,12 @@ async function getStats() {
 function App() {
 	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0) })
 
+	// @TODO
+	const onError = e => console.error(e.message || e)
+
 	useEffect(() => {
-		getStats().then(setStats)
-		setInterval(() => getStats().then(setStats), 30000)
+		getStats().then(setStats).catch(onError)
+		setInterval(() => getStats().then(setStats).catch(onError), 30000)
 	}, [])
 
 	return (
