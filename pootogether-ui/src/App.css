@@ -70,3 +70,6 @@ input {
 	padding: 0.5em;
 	margin: 1.5em auto 1em;
 }
+a:active {
+	transform: scale(0.95);
+}

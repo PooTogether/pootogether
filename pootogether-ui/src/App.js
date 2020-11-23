@@ -44,7 +44,7 @@ function App() {
 
 	return (
 		 <div className="App">
-			<div class="poo"/>
+			<a href="https://medium" target="_blank" rel="noopener"><div class="poo"/></a>
 			<Button label="connect wallet"/>
 			<div style={{ flex: 1, display: 'flex', maxWidth: 850, margin: 'auto' }}>
 				<Deposit/>
