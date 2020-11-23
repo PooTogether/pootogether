@@ -22,12 +22,6 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // check for cname leaks
 // show shitcoin list
 // footer
-const colors = {
-	text: '#ffffff',
-	gradient1: '#a6fffb',
-	gradient2: '#ff8cf1',
-	border: '#ffffff'
-}
 
 async function getStats() {
 	const [staked, skimmableBase] = await Promise.all([
@@ -85,9 +79,11 @@ function Button({ label }) {
 }
 
 function RewardStats({ stats }) {
+	const den = BigNumber.from(1e14)
+	const fmt = x => formatUnits(x.div(den), 4)
 	return (<div class="card stats">
-		<p>Total staked: {formatUnits(stats.staked, 18)} yUSD</p>
-		<p>Total prize pool: {formatUnits(stats.skimmableBase, 18)} yUSD</p>
+		<p>Total staked: {fmt(stats.staked)} yUSD</p>
+		<p>Total prize pool: {fmt(stats.skimmableBase)} yUSD</p>
 		<p>Your share (chance to win): 0%</p>
 	</div>)
 }
