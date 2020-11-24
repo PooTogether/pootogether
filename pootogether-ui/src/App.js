@@ -46,7 +46,7 @@ function App() {
 		 <div className="App">
 			<a href="https://medium" target="_blank" rel="noopener"><div class="poo"/></a>
 			<Button label="connect wallet"/>
-			<div style={{ flex: 1, display: 'flex', maxWidth: 850, margin: 'auto' }}>
+			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
 				<Deposit/>
 				<Withdraw/>
 			</div>
@@ -67,7 +67,7 @@ function InOrOut({ label, maxAmount, onAction }) {
 	return (<div class="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
 			<input type="number" value="0"></input>
-			<div>Max amount: {label=='Deposit' ? 2000 : 0} yUSD</div>
+			<div>Max amount: {label==='Deposit' ? 2000 : 0} yUSD</div>
 		</div>
 		<Button label={label}/>
 	</div>)
