@@ -54,7 +54,7 @@ function App() {
 
 	return (
 		 <div className="App">
-			<a href="https://medium" target="_blank" rel="noopener"><div className="poo"/></a>
+			<a href="https://medium" target="_blank" rel="noreferrer noopener"><div className="poo"/></a>
 			{ wallet.address ? (<h2>Connected wallet: {wallet.address}</h2>) : (<Button label="connect wallet" onClick={connectWallet}/>)}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
@@ -76,10 +76,17 @@ function Withdraw() {
 
 function InOrOut({ label, maxAmount, onAction }) {
 	const [val, setVal] = useState(0)
+	// @TODO do not allow negative values (abs)
+	// try parsing
+	const onChange = event => {
+		try { parseUnits(event.target.value, 18) } catch { return }
+		const val = event.target.value
+		setVal(val < 0 ? -val : val)
+	}
 	return (<div className="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
-			<input type="number" value={val} onChange={event => setVal(event.target.value)}></input>
-			<div>Max amount: {label==='Deposit' ? 2000 : 0} yUSD</div>
+			<input type="number" value={val} onChange={onChange}></input>
+			<div className="clickable">Max amount: 0 yUSD</div>
 		</div>
 		<Button label={label}/>
 	</div>)

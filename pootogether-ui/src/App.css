@@ -89,3 +89,6 @@ h2 {
 .error {
 	color: red;
 }
+.clickable {
+	cursor: pointer;
+}
