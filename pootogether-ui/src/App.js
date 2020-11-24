@@ -71,7 +71,7 @@ function App() {
 				(<Button label="connect wallet" onClick={connectWallet}/>)
 			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
-			<div style={{ flex: 1, display: "flex", maxWidth: 900, margin: "auto" }}>
+			<div className="cardHolder">
 				<Deposit wallet={wallet} errWrapper={errWrapper}/>
 				<Withdraw wallet={wallet} errWrapper={errWrapper}/>
 			</div>
@@ -83,6 +83,7 @@ function App() {
 function Deposit({ wallet, errWrapper }) {
 	const onAction = errWrapper(async toDeposit => {
 		if (!wallet) throw new Error("no wallet connected")
+		if (toDeposit == 0) throw new Error("cannot deposit zero")
 		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
 		const depositAmount = parseUnits(toDeposit, 18)
 		const allowance = await Vault.allowance(wallet.address, PooTogether.address)
@@ -101,6 +102,7 @@ function Deposit({ wallet, errWrapper }) {
 function Withdraw({ wallet, errWrapper }) {
 	const onAction = errWrapper(async toWithdraw => {
 		if (!wallet) throw new Error("no wallet connected")
+		if (toWithdraw == 0) throw new Error("cannot withdraw zero")
 		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
 		await TogetherWithSigner.withdraw(parseUnits(toWithdraw, 18))
 	})

@@ -96,3 +96,18 @@ h2 {
 .clickable:active {
 	transform: scale(0.95);
 }
+
+
+.cardHolder {
+	margin: auto;
+	max-width: 900px;
+	display: flex;
+}
+
+@media only screen and (max-width: 900px) {
+	.cardHolder {
+		display: inline;
+	}
+}
+
+
