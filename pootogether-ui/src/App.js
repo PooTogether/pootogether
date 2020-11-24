@@ -22,7 +22,7 @@ async function getStats() {
 		PooTogether.totalBase(),
 		PooTogether.skimmableBase()
 	])
-	return { staked, totalBase, skimmableBase, loading: false }
+	return { staked, totalBase, skimmableBase }
 }
 
 function App() {
