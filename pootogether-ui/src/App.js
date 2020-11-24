@@ -71,7 +71,7 @@ function App() {
 				<Deposit wallet={wallet} onError={onError}/>
 				<Withdraw wallet={wallet} onError={onError}/>
 			</div>
-			<RewardStats stats={stats}/>
+			<RewardStats stats={stats} wallet={wallet}/>
 		 </div>
 	);
 }
@@ -126,12 +126,15 @@ function Button({ label, onClick }) {
 	return (<button onClick={onClick}>{label}</button>)
 }
 
-function RewardStats({ stats }) {
+function RewardStats({ stats, wallet }) {
 	if (stats.loading) return (<div className="card stats"><h2>Loading...</h2></div>)
+	const chanceToWin = wallet
+		? wallet.maxWithdraw.mul(10000).div(stats.staked).toNumber()/100
+		: 0
 	return (<div className="card stats">
 		<p>Total staked: {formatyUSD(stats.staked)} yUSD</p>
 		<p>Total prize pool: {formatyUSD(stats.skimmableBase)} yUSD</p>
-		<p>Your share (chance to win): 0%</p>
+		<p>Your share (chance to win): {chanceToWin.toFixed(2)}%</p>
 	</div>)
 }
 
