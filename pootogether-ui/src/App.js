@@ -34,8 +34,11 @@ async function getStats() {
 function App() {
 	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0) })
 
-	// @TODO
-	const onError = e => console.error(e.message || e)
+	const [errMsg, setErrMsg] = useState(null)
+	const onError = e => {
+		setErrMsg((e && e.message) ? e.message : "unknown error occured")
+		console.error(e)
+	}
 
 	const [wallet, setWallet] = useState({ signer: null, address: null })
 	const connectWallet = () => getSigner()
@@ -52,6 +55,7 @@ function App() {
 		 <div className="App">
 			<a href="https://medium" target="_blank" rel="noopener"><div class="poo"/></a>
 			{ wallet.address ? (<h2>Connected wallet: {wallet.address}</h2>) : (<Button label="connect wallet" onClick={connectWallet}/>)}
+			{ errMsg ? (<h2 class="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
 				<Deposit/>
 				<Withdraw/>
