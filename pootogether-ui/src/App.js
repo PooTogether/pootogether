@@ -41,6 +41,10 @@ function App() {
 		if (e && e.message.startsWith("failed to meet quorum")) return
 		setErrMsg((e && e.message) ? e.message : "unknown error occured")
 	}
+	const errWrapper = func => {
+		setErrMsg(null)
+		func().catch(onError)
+	}
 
 	const [wallet, setWallet] = useState(null)
 	const getWalletInfo = async signer => {
@@ -75,40 +79,38 @@ function App() {
 			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: "flex", maxWidth: 900, margin: "auto" }}>
-				<Deposit wallet={wallet} onError={onError}/>
-				<Withdraw wallet={wallet} onError={onError}/>
+				<Deposit wallet={wallet} errWrapper={errWrapper}/>
+				<Withdraw wallet={wallet} errWrapper={errWrapper}/>
 			</div>
 			<RewardStats stats={stats} wallet={wallet}/>
 		 </div>
 	);
 }
 
-function Deposit({ wallet, onError }) {
-	const onAction = async toDeposit => {
+function Deposit({ wallet, errWrapper }) {
+	const onAction = errWrapper(async toDeposit => {
+		if (!wallet) throw new Error("no wallet connected")
 		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
 		const depositAmount = parseUnits(toDeposit, 18)
-		try {
-			const allowance = await Vault.allowance(wallet.address, PooTogether.address)
-			if (allowance.lt(depositAmount)) {
-				const VaultWithSigner = new Contract(Vault.address, Vault.interface, wallet.signer)
-				// same value that iearnfinance is using
-				await VaultWithSigner.approve(PooTogether.address, parseUnits("999999999999", 18))
-				await TogetherWithSigner.deposit(depositAmount, { gasLimit: 350000 })
-			} else {
-				await TogetherWithSigner.deposit(depositAmount)
-			}
-		} catch(e) { onError(e) }
-	}
+		const allowance = await Vault.allowance(wallet.address, PooTogether.address)
+		if (allowance.lt(depositAmount)) {
+			const VaultWithSigner = new Contract(Vault.address, Vault.interface, wallet.signer)
+			// same value that iearnfinance is using
+			await VaultWithSigner.approve(PooTogether.address, parseUnits("999999999999", 18))
+			await TogetherWithSigner.deposit(depositAmount, { gasLimit: 350000 })
+		} else {
+			await TogetherWithSigner.deposit(depositAmount)
+		}
+	})
 	return InOrOut({ label: "Deposit", maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction })
 }
 
-function Withdraw({ wallet, onError }) {
-	const onAction = async toWithdraw => {
+function Withdraw({ wallet, errWrapper }) {
+	const onAction = errWrapper(async toWithdraw => {
+		if (!wallet) throw new Error("no wallet connected")
 		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
-		try {
-			await TogetherWithSigner.withdraw(parseUnits(toWithdraw, 18))
-		} catch(e) { onError(e) }
-	}
+		await TogetherWithSigner.withdraw(parseUnits(toWithdraw, 18))
+	})
 	return InOrOut({ label: "Withdraw", maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction })
 }
 
