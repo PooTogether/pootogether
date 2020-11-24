@@ -28,11 +28,11 @@ async function getStats() {
 		Vault.balanceOf(PooTogether.address),
 		PooTogether.skimmableBase()
 	])
-	return { staked, skimmableBase }
+	return { staked, skimmableBase, loading: false }
 }
 
 function App() {
-	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0) })
+	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0), loading: true })
 
 	const [errMsg, setErrMsg] = useState(null)
 	const onError = e => {
@@ -98,6 +98,7 @@ function Button({ label, onClick }) {
 }
 
 function RewardStats({ stats }) {
+	if (stats.loading) return (<div className="card stats"><h2>Loading...</h2></div>)
 	return (<div className="card stats">
 		<p>Total staked: {formatyUSD(stats.staked)} yUSD</p>
 		<p>Total prize pool: {formatyUSD(stats.skimmableBase)} yUSD</p>
