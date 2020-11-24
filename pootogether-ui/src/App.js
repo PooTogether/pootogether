@@ -24,15 +24,16 @@ const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require
 // footer
 
 async function getStats() {
-	const [staked, skimmableBase] = await Promise.all([
+	const [staked, totalBase, skimmableBase] = await Promise.all([
 		Vault.balanceOf(PooTogether.address),
+		PooTogether.totalBase(),
 		PooTogether.skimmableBase()
 	])
-	return { staked, skimmableBase, loading: false }
+	return { staked, totalBase, skimmableBase, loading: false }
 }
 
 function App() {
-	const [stats, setStats] = useState({ staked: BigNumber.from(0), skimmableBase: BigNumber.from(0), loading: true })
+	const [stats, setStats] = useState(null)
 
 	const [errMsg, setErrMsg] = useState(null)
 	const onError = e => {
@@ -45,11 +46,12 @@ function App() {
 	const connectWallet = () => getSigner()
 		.then(async signer => {
 			const address = await signer.getAddress()
-			const [maxWithdraw, maxDeposit] = await Promise.all([
+			const [userBase, maxWithdraw, maxDeposit] = await Promise.all([
+				PooTogether.perUserBase(address),
 				PooTogether.withdrawableShares(address),
 				Vault.balanceOf(address)
 			])
-			return { signer, address, maxWithdraw, maxDeposit }
+			return { signer, address, userBase, maxWithdraw, maxDeposit }
 		})
 		.then(setWallet)
 		.catch(onError)
@@ -84,6 +86,7 @@ function Deposit({ wallet, onError }) {
 			const allowance = await Vault.allowance(wallet.address, PooTogether.address)
 			if (allowance.lt(depositAmount)) {
 				const VaultWithSigner = new Contract(Vault.address, Vault.interface, wallet.signer)
+				// @TODO proper max here & test
 				await VaultWithSigner.approve(PooTogether.address, parseUnits('999999999999999999', 18))
 				await TogetherWithSigner.deposit(depositAmount, { gasLimit: 350000 })
 			} else {
@@ -127,13 +130,13 @@ function Button({ label, onClick }) {
 }
 
 function RewardStats({ stats, wallet }) {
-	if (stats.loading) return (<div className="card stats"><h2>Loading...</h2></div>)
+	if (!stats) return (<div className="card stats"><h2>Loading...</h2></div>)
 	const chanceToWin = wallet
-		? wallet.maxWithdraw.mul(10000).div(stats.staked).toNumber()/100
+		? wallet.userBase.mul(10000).div(stats.totalBase).toNumber()/100
 		: 0
 	return (<div className="card stats">
 		<p>Total staked: {formatyUSD(stats.staked)} yUSD</p>
-		<p>Total prize pool: {formatyUSD(stats.skimmableBase)} yUSD</p>
+		<p>Total prize pool: {formatyUSD(stats.skimmableBase)} yCRV</p>
 		<p>Your share (chance to win): {chanceToWin.toFixed(2)}%</p>
 	</div>)
 }
