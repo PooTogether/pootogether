@@ -41,9 +41,16 @@ function App() {
 		setErrMsg((e && e.message) ? e.message : "unknown error occured")
 	}
 
-	const [wallet, setWallet] = useState({ signer: null, address: null })
+	const [wallet, setWallet] = useState(null)
 	const connectWallet = () => getSigner()
-		.then(signer => signer.getAddress().then(address => ({ address, signer })))
+		.then(async signer => {
+			const address = await signer.getAddress()
+			const [maxWithdraw, maxDeposit] = await Promise.all([
+				PooTogether.withdrawableShares(address),
+				Vault.balanceOf(address)
+			])
+			return { signer, address, maxWithdraw, maxDeposit }
+		})
 		.then(setWallet)
 		.catch(onError)
 
@@ -55,23 +62,26 @@ function App() {
 	return (
 		 <div className="App">
 			<a href="https://medium" target="_blank" rel="noreferrer noopener"><div className="poo"/></a>
-			{ wallet.address ? (<h2>Connected wallet: {wallet.address}</h2>) : (<Button label="connect wallet" onClick={connectWallet}/>)}
+			{ wallet ?
+				(<h2>Connected wallet: {wallet.address}</h2>) :
+				(<Button label="connect wallet" onClick={connectWallet}/>)
+			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
-				<Deposit/>
-				<Withdraw/>
+				<Deposit wallet={wallet}/>
+				<Withdraw wallet={wallet}/>
 			</div>
 			<RewardStats stats={stats}/>
 		 </div>
 	);
 }
 
-function Deposit() {
-	return InOrOut({ label: 'Deposit', maxAmount: BigNumber.from(0) })
+function Deposit({ wallet }) {
+	return InOrOut({ label: 'Deposit', maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction: x => console.log(x) })
 }
 
-function Withdraw() {
-	return InOrOut({ label: 'Withdraw', maxAmount: BigNumber.from(1000000000000000), onAction: x => console.log(x) })
+function Withdraw({ wallet }) {
+	return InOrOut({ label: 'Withdraw', maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction: x => console.log(x) })
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
