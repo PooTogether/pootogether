@@ -11,16 +11,9 @@ const Vault = new Contract("0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c", require
 // getPricePerFullShare
 
 // TODOs
-// cleanup
-// LOADING state
-// depsit/withdraw
-// cards styling
-// errors
-// connect walet
-// approvals 
 // github pages account, deploy
 // check for cname leaks
-// show shitcoin list
+// show shitcoin list?
 // footer
 
 async function getStats() {
@@ -131,7 +124,6 @@ function InOrOut({ label, maxAmount, onAction }) {
 	</div>)
 }
 
-// @TODO
 function Button({ label, onClick }) {
 	return (<button onClick={onClick}>{label}</button>)
 }
