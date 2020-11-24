@@ -37,6 +37,12 @@ function App() {
 	// @TODO
 	const onError = e => console.error(e.message || e)
 
+	const [wallet, setWallet] = useState({ signer: null, address: null })
+	const connectWallet = () => getSigner()
+		.then(signer => signer.getAddress().then(address => ({ address, signer })))
+		.then(setWallet)
+		.catch(onError)
+
 	useEffect(() => {
 		getStats().then(setStats).catch(onError)
 		setInterval(() => getStats().then(setStats).catch(onError), 30000)
@@ -45,7 +51,7 @@ function App() {
 	return (
 		 <div className="App">
 			<a href="https://medium" target="_blank" rel="noopener"><div class="poo"/></a>
-			<Button label="connect wallet"/>
+			{ wallet.address ? (<h2>Connected wallet: {wallet.address}</h2>) : (<Button label="connect wallet" onClick={connectWallet}/>)}
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
 				<Deposit/>
 				<Withdraw/>
@@ -74,8 +80,8 @@ function InOrOut({ label, maxAmount, onAction }) {
 }
 
 // @TODO
-function Button({ label }) {
-	return (<button>{label}</button>)
+function Button({ label, onClick }) {
+	return (<button onClick={onClick}>{label}</button>)
 }
 
 function RewardStats({ stats }) {
