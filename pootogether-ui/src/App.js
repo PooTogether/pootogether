@@ -53,9 +53,9 @@ function App() {
 
 	return (
 		 <div className="App">
-			<a href="https://medium" target="_blank" rel="noopener"><div class="poo"/></a>
+			<a href="https://medium" target="_blank" rel="noopener"><div className="poo"/></a>
 			{ wallet.address ? (<h2>Connected wallet: {wallet.address}</h2>) : (<Button label="connect wallet" onClick={connectWallet}/>)}
-			{ errMsg ? (<h2 class="error">Error: {errMsg}</h2>) : null }
+			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
 				<Deposit/>
 				<Withdraw/>
@@ -74,7 +74,7 @@ function Withdraw() {
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
-	return (<div class="card" style={{ display: 'flex' }}>
+	return (<div className="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
 			<input type="number" value="0"></input>
 			<div>Max amount: {label==='Deposit' ? 2000 : 0} yUSD</div>
@@ -91,7 +91,7 @@ function Button({ label, onClick }) {
 function RewardStats({ stats }) {
 	const den = BigNumber.from(1e14)
 	const fmt = x => formatUnits(x.div(den), 4)
-	return (<div class="card stats">
+	return (<div className="card stats">
 		<p>Total staked: {fmt(stats.staked)} yUSD</p>
 		<p>Total prize pool: {fmt(stats.skimmableBase)} yUSD</p>
 		<p>Your share (chance to win): 0%</p>
