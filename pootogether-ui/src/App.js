@@ -1,12 +1,12 @@
-import './App.css';
-import { Contract, getDefaultProvider, BigNumber, providers, utils } from 'ethers'
-import { useState, useEffect } from 'react'
+import "./App.css";
+import { Contract, getDefaultProvider, BigNumber, providers, utils } from "ethers"
+import { useState, useEffect } from "react"
 const { formatUnits, parseUnits } = utils
-const provider = getDefaultProvider('homestead')
+const provider = getDefaultProvider("homestead")
 
-//const POO = new Contract('0x6A54EF1680f593574522422f3700194EC91CE57d', require('./interfaces/ERC20'), provider)
-const PooTogether = new Contract('0x19a62938f67F2A44C47975Cc4c1132B7B75Aab76', require('./interfaces/PooTogether'), provider)
-const Vault = new Contract('0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c', require('./interfaces/Vault'), provider)
+//const POO = new Contract("0x6A54EF1680f593574522422f3700194EC91CE57d", require("./interfaces/ERC20"), provider)
+const PooTogether = new Contract("0x19a62938f67F2A44C47975Cc4c1132B7B75Aab76", require("./interfaces/PooTogether"), provider)
+const Vault = new Contract("0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c", require("./interfaces/Vault"), provider)
 
 // getPricePerFullShare
 
@@ -69,7 +69,7 @@ function App() {
 				(<Button label="connect wallet" onClick={connectWallet}/>)
 			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
-			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
+			<div style={{ flex: 1, display: "flex", maxWidth: 900, margin: "auto" }}>
 				<Deposit wallet={wallet} onError={onError}/>
 				<Withdraw wallet={wallet} onError={onError}/>
 			</div>
@@ -86,15 +86,15 @@ function Deposit({ wallet, onError }) {
 			const allowance = await Vault.allowance(wallet.address, PooTogether.address)
 			if (allowance.lt(depositAmount)) {
 				const VaultWithSigner = new Contract(Vault.address, Vault.interface, wallet.signer)
-				// @TODO proper max here & test
-				await VaultWithSigner.approve(PooTogether.address, parseUnits('999999999999999999', 18))
+				// same value that iearnfinance is using
+				await VaultWithSigner.approve(PooTogether.address, parseUnits("999999999999", 18))
 				await TogetherWithSigner.deposit(depositAmount, { gasLimit: 350000 })
 			} else {
 				await TogetherWithSigner.deposit(depositAmount)
 			}
 		} catch(e) { onError(e) }
 	}
-	return InOrOut({ label: 'Deposit', maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction })
+	return InOrOut({ label: "Deposit", maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction })
 }
 
 function Withdraw({ wallet, onError }) {
@@ -104,7 +104,7 @@ function Withdraw({ wallet, onError }) {
 			await TogetherWithSigner.withdraw(parseUnits(toWithdraw, 18))
 		} catch(e) { onError(e) }
 	}
-	return InOrOut({ label: 'Withdraw', maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction })
+	return InOrOut({ label: "Withdraw", maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction })
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
@@ -115,7 +115,7 @@ function InOrOut({ label, maxAmount, onAction }) {
 		setVal(val < 0 ? -val : val)
 	}
 	const setToMax = () => setVal(formatUnits(maxAmount, 18))
-	return (<div className="card" style={{ display: 'flex' }}>
+	return (<div className="card" style={{ display: "flex" }}>
 		<div style={{ flex: 1 }}>
 			<input type="number" value={val} onChange={onChange}></input>
 			<div className="clickable" onClick={setToMax}>Max amount: {formatyUSD(maxAmount)} yUSD</div>
@@ -148,8 +148,8 @@ function formatyUSD(x) {
 
 // @TODO refactor
 async function getSigner() {
-        if (typeof window.ethereum !== 'undefined') await window.ethereum.enable()
-        if (!window.web3) throw new Error('no web3')
+        if (typeof window.ethereum !== "undefined") await window.ethereum.enable()
+        if (!window.web3) throw new Error("no web3")
 
         const provider = new providers.Web3Provider(window.web3.currentProvider)
         const signer = provider.getSigner()
