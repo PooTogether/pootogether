@@ -71,24 +71,23 @@ function Deposit() {
 }
 
 function Withdraw() {
-	return InOrOut({ label: 'Withdraw', maxAmount: BigNumber.from(0) })
+	return InOrOut({ label: 'Withdraw', maxAmount: BigNumber.from(1000000000000000), onAction: x => console.log(x) })
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
 	const [val, setVal] = useState(0)
-	// @TODO do not allow negative values (abs)
-	// try parsing
 	const onChange = event => {
 		try { parseUnits(event.target.value, 18) } catch { return }
 		const val = event.target.value
 		setVal(val < 0 ? -val : val)
 	}
+	const setToMax = () => setVal(formatUnits(maxAmount, 18))
 	return (<div className="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
 			<input type="number" value={val} onChange={onChange}></input>
-			<div className="clickable">Max amount: {formatyUSD(maxAmount)} yUSD</div>
+			<div className="clickable" onClick={setToMax}>Max amount: {formatyUSD(maxAmount)} yUSD</div>
 		</div>
-		<Button label={label}/>
+		<Button label={label} onClick={() => onAction(val)}/>
 	</div>)
 }
 
