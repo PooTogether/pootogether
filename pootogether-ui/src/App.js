@@ -41,9 +41,9 @@ function App() {
 		if (e && e.message.startsWith("failed to meet quorum")) return
 		setErrMsg((e && e.message) ? e.message : "unknown error occured")
 	}
-	const errWrapper = func => {
+	const errWrapper = func => (...arg) => {
 		setErrMsg(null)
-		func().catch(onError)
+		func.apply(null, arg).catch(onError)
 	}
 
 	const [wallet, setWallet] = useState(null)
@@ -115,7 +115,7 @@ function Withdraw({ wallet, errWrapper }) {
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
-	const [val, setVal] = useState(0)
+	const [val, setVal] = useState("0")
 	const onChange = event => {
 		try { parseUnits(event.target.value, 18) } catch { return }
 		const val = event.target.value
