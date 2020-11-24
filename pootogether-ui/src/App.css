@@ -108,6 +108,9 @@ h2 {
 	.cardHolder {
 		display: inline;
 	}
+	.card {
+		width: auto;
+	}
 }
 
 
