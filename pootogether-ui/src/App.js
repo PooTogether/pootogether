@@ -36,8 +36,9 @@ function App() {
 
 	const [errMsg, setErrMsg] = useState(null)
 	const onError = e => {
-		setErrMsg((e && e.message) ? e.message : "unknown error occured")
 		console.error(e)
+		if (e && e.message.startsWith("failed to meet quorum")) return
+		setErrMsg((e && e.message) ? e.message : "unknown error occured")
 	}
 
 	const [wallet, setWallet] = useState({ signer: null, address: null })
