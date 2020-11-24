@@ -74,9 +74,10 @@ function Withdraw() {
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
+	const [val, setVal] = useState(0)
 	return (<div className="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
-			<input type="number" value="0"></input>
+			<input type="number" value={val} onChange={event => setVal(event.target.value)}></input>
 			<div>Max amount: {label==='Deposit' ? 2000 : 0} yUSD</div>
 		</div>
 		<Button label={label}/>
