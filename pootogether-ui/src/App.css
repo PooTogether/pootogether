@@ -74,6 +74,12 @@ input {
 input:focus {
 	box-shadow: 0px 0px 3px #ff8cf1;
 }
+a, button {
+	outline: none !important;
+}
+button::-moz-focus-inner {
+	border: 0;
+}
 a:active {
 	transform: scale(0.95);
 }
