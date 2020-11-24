@@ -43,23 +43,28 @@ function App() {
 	}
 
 	const [wallet, setWallet] = useState(null)
+	const getWalletInfo = async signer => {
+		const address = await signer.getAddress()
+		const [userBase, maxWithdraw, maxDeposit] = await Promise.all([
+			PooTogether.perUserBase(address),
+			PooTogether.withdrawableShares(address),
+			Vault.balanceOf(address)
+		])
+		return { signer, address, userBase, maxWithdraw, maxDeposit }
+	}
 	const connectWallet = () => getSigner()
-		.then(async signer => {
-			const address = await signer.getAddress()
-			const [userBase, maxWithdraw, maxDeposit] = await Promise.all([
-				PooTogether.perUserBase(address),
-				PooTogether.withdrawableShares(address),
-				Vault.balanceOf(address)
-			])
-			return { signer, address, userBase, maxWithdraw, maxDeposit }
-		})
+		.then(getWalletInfo)
 		.then(setWallet)
 		.catch(onError)
-
 	useEffect(() => {
 		getStats().then(setStats).catch(onError)
-		setInterval(() => getStats().then(setStats).catch(onError), 30000)
-	}, [])
+
+		const updateWalletIfAny = wallet
+			? () => getWalletInfo(wallet.signer).then(setWallet)
+			: () => null
+		const interval = setInterval(() => getStats().then(setStats).then(updateWalletIfAny).catch(onError), 20000)
+		return () => clearInterval(interval)
+	}, [wallet])
 
 	return (
 		 <div className="App">
