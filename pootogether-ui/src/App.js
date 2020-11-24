@@ -67,11 +67,11 @@ function App() {
 }
 
 function Deposit() {
-	return InOrOut({label: 'Deposit'})
+	return InOrOut({ label: 'Deposit', maxAmount: BigNumber.from(0) })
 }
 
 function Withdraw() {
-	return InOrOut({label: 'Withdraw'})
+	return InOrOut({ label: 'Withdraw', maxAmount: BigNumber.from(0) })
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
@@ -86,7 +86,7 @@ function InOrOut({ label, maxAmount, onAction }) {
 	return (<div className="card" style={{ display: 'flex' }}>
 		<div style={{ flex: 1 }}>
 			<input type="number" value={val} onChange={onChange}></input>
-			<div className="clickable">Max amount: 0 yUSD</div>
+			<div className="clickable">Max amount: {formatyUSD(maxAmount)} yUSD</div>
 		</div>
 		<Button label={label}/>
 	</div>)
@@ -98,13 +98,16 @@ function Button({ label, onClick }) {
 }
 
 function RewardStats({ stats }) {
-	const den = BigNumber.from(1e14)
-	const fmt = x => formatUnits(x.div(den), 4)
 	return (<div className="card stats">
-		<p>Total staked: {fmt(stats.staked)} yUSD</p>
-		<p>Total prize pool: {fmt(stats.skimmableBase)} yUSD</p>
+		<p>Total staked: {formatyUSD(stats.staked)} yUSD</p>
+		<p>Total prize pool: {formatyUSD(stats.skimmableBase)} yUSD</p>
 		<p>Your share (chance to win): 0%</p>
 	</div>)
+}
+
+function formatyUSD(x) {
+	const den = BigNumber.from(1e14)
+	return formatUnits(x.div(den), 4)
 }
 
 // @TODO refactor

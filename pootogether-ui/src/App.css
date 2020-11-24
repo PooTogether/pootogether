@@ -91,4 +91,8 @@ h2 {
 }
 .clickable {
 	cursor: pointer;
+	user-select: none;
+}
+.clickable:active {
+	transform: scale(0.95);
 }
