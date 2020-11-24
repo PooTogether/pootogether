@@ -68,20 +68,40 @@ function App() {
 			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
 			<div style={{ flex: 1, display: 'flex', maxWidth: 900, margin: 'auto' }}>
-				<Deposit wallet={wallet}/>
-				<Withdraw wallet={wallet}/>
+				<Deposit wallet={wallet} onError={onError}/>
+				<Withdraw wallet={wallet} onError={onError}/>
 			</div>
 			<RewardStats stats={stats}/>
 		 </div>
 	);
 }
 
-function Deposit({ wallet }) {
-	return InOrOut({ label: 'Deposit', maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction: x => console.log(x) })
+function Deposit({ wallet, onError }) {
+	const onAction = async toDeposit => {
+		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
+		const depositAmount = parseUnits(toDeposit, 18)
+		try {
+			const allowance = await Vault.allowance(wallet.address, PooTogether.address)
+			if (allowance.lt(depositAmount)) {
+				const VaultWithSigner = new Contract(Vault.address, Vault.interface, wallet.signer)
+				await VaultWithSigner.approve(PooTogether.address, parseUnits('999999999999999999', 18))
+				await TogetherWithSigner.deposit(depositAmount, { gasLimit: 350000 })
+			} else {
+				await TogetherWithSigner.deposit(depositAmount)
+			}
+		} catch(e) { onError(e) }
+	}
+	return InOrOut({ label: 'Deposit', maxAmount: wallet ? wallet.maxDeposit : BigNumber.from(0), onAction })
 }
 
-function Withdraw({ wallet }) {
-	return InOrOut({ label: 'Withdraw', maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction: x => console.log(x) })
+function Withdraw({ wallet, onError }) {
+	const onAction = async toWithdraw => {
+		const TogetherWithSigner = new Contract(PooTogether.address, PooTogether.interface, wallet.signer)
+		try {
+			await TogetherWithSigner.withdraw(parseUnits(toWithdraw, 18))
+		} catch(e) { onError(e) }
+	}
+	return InOrOut({ label: 'Withdraw', maxAmount: wallet ? wallet.maxWithdraw : BigNumber.from(0), onAction })
 }
 
 function InOrOut({ label, maxAmount, onAction }) {
