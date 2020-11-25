@@ -77,7 +77,7 @@ function App() {
 			</div>
 			<RewardStats stats={stats} wallet={wallet}/>
 			<footer>
-				<a href="https://twitter.com/pootogether">Twitter</a>
+				<a href="https://twitter.com/pootogether">🐦 Twitter</a>
 			</footer>
 		 </div>
 	);
