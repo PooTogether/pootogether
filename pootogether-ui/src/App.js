@@ -65,7 +65,7 @@ function App() {
 
 	return (
 		 <div className="App">
-			<a href="https://medium" target="_blank" rel="noreferrer noopener"><div className="poo"/></a>
+			<a href="https://medium.com/@pootogether/introducing-pootogether-a-no-loss-blockchain-lottery-5959dc820c9" target="_blank" rel="noreferrer noopener"><div className="poo"/></a>
 			{ wallet ?
 				(<h2>Connected wallet: {wallet.address}</h2>) :
 				(<Button label="connect wallet" onClick={connectWallet}/>)
