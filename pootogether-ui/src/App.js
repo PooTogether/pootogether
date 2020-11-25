@@ -76,6 +76,9 @@ function App() {
 				<Withdraw wallet={wallet} errWrapper={errWrapper}/>
 			</div>
 			<RewardStats stats={stats} wallet={wallet}/>
+			<footer>
+				<a href="https://twitter.com/pootogether">Twitter</a>
+			</footer>
 		 </div>
 	);
 }

@@ -113,4 +113,10 @@ h2 {
 	}
 }
 
-
+footer {
+	max-width: 600px;
+	margin: 1em auto;
+}
+footer a {
+	color: white;
+}
