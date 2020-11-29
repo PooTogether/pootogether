@@ -79,6 +79,7 @@ function App() {
 			<footer>
 				<a href="https://twitter.com/pootogether">🐦 Twitter</a>
 				<a href="https://discord.gg/AaNay4aGkr">💬 Discord</a>
+				<a href="https://medium.com/@pootogether/introducing-pootogether-a-no-loss-blockchain-lottery-5959dc820c9">📢 Announcement</a>
 			</footer>
 		 </div>
 	);
