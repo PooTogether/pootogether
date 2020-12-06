@@ -32,7 +32,10 @@ contract Distributor {
 		if (idx == 13) return address(0x8Ab7404063Ec4DBcfd4598215992DC3F8EC853d7); // AKRO
 		if (idx == 14) return address(0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39); // HEX
 		if (idx == 15) return address(0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e); // YFI
-		if (idx == 16) return address(0x45804880de22913dafe09f4980848ece6ecbaf78); // PAXG
+		if (idx == 16) return address(0x45804880De22913dAFE09f4980848ECE6EcbAf78); // PAXG
+		if (idx == 17) return address(0x8888801aF4d980682e47f1A9036e589479e835C5); // MPH
+		if (idx == 18) return address(0xa7ED29B253D8B4E3109ce07c80fc570f81B63696); // BAS
+		if (idx == 19) return address(0x5D8d9F5b96f4438195BE9b99eee6118Ed4304286); // COVER
 		// @TODO POO - 2x chance to get that
 		return address(0);
 	}
