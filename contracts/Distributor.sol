@@ -14,7 +14,7 @@ contract Distributor {
 	function shitcoinMenu(uint entropy) public pure returns (address) { 
 		uint idx = UniformRandomNumber.uniform(
 			entropy,
-			17 /* WARNING: ADJUST BASED ON TOKEN COUNT!! */
+			40 /* WARNING: ADJUST BASED ON TOKEN COUNT AND CHANCE TO WIN POO */
 		);
 		if (idx == 0) return address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984); // UNI 
 		if (idx == 1) return address(0x62359Ed7505Efc61FF1D56fEF82158CcaffA23D7); // CORE
@@ -39,8 +39,8 @@ contract Distributor {
 		if (idx == 20) return address(0xADE00C28244d5CE17D72E40330B1c318cD12B7c3); // ADX
 		if (idx == 21) return address(0x1695936d6a953df699C38CA21c2140d497C08BD9); // SYN
 		if (idx == 22) return address(0x09a3EcAFa817268f77BE1283176B946C4ff2E608); // MIR
-		// @TODO POO - 2x chance to get that
-		return address(0);
+		// POO
+		return address(0xe5a4Dad2Ea987215460379Ab285DF87136E83BEA);
 	}
 	
 	// This contract is not meant to hold any tokens at any point - you're supposed to call distribute() immediately after receiving tokens
