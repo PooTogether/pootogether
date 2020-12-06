@@ -36,6 +36,9 @@ contract Distributor {
 		if (idx == 17) return address(0x8888801aF4d980682e47f1A9036e589479e835C5); // MPH
 		if (idx == 18) return address(0xa7ED29B253D8B4E3109ce07c80fc570f81B63696); // BAS
 		if (idx == 19) return address(0x5D8d9F5b96f4438195BE9b99eee6118Ed4304286); // COVER
+		if (idx == 20) return address(0xADE00C28244d5CE17D72E40330B1c318cD12B7c3); // ADX
+		if (idx == 21) return address(0x1695936d6a953df699C38CA21c2140d497C08BD9); // SYN
+		if (idx == 22) return address(0x09a3EcAFa817268f77BE1283176B946C4ff2E608); // MIR
 		// @TODO POO - 2x chance to get that
 		return address(0);
 	}
