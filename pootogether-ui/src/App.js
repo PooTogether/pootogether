@@ -80,6 +80,7 @@ function App() {
 				<a href="https://twitter.com/pootogether">🐦 Twitter</a>
 				<a href="https://discord.gg/AaNay4aGkr">💬 Discord</a>
 				<a href="https://medium.com/@pootogether/introducing-pootogether-a-no-loss-blockchain-lottery-5959dc820c9">📢 Announcement</a>
+				<a href="https://app.uniswap.org/#/swap?outputCurrency=0x5dbcf33d8c2e976c6b560249878e6f1491bca25c">💸 Get yUSD</a>
 			</footer>
 		 </div>
 	);
