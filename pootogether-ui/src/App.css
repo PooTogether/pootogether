@@ -84,7 +84,7 @@ button::-moz-focus-inner {
 a:active {
 	transform: scale(0.95);
 }
-a:hover {
+a:hover, .clickable:hover {
 	text-decoration: underline;
 }
 h2 {
