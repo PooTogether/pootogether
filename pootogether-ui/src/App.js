@@ -16,13 +16,17 @@ const Vault = new Contract("0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c", require
 // show shitcoin list?
 // footer
 
+const STATS_INTVL = 20000
+
 async function getStats() {
-	const [staked, totalBase, skimmableBase] = await Promise.all([
+	const [staked, totalBase, skimmableBase, unlocksAtBlock, currentBlock] = await Promise.all([
 		Vault.balanceOf(PooTogether.address),
 		PooTogether.totalBase(),
-		PooTogether.skimmableBase()
+		PooTogether.skimmableBase(),
+		PooTogether.unlocksAtBlock(),
+		provider.getBlockNumber(),
 	])
-	return { staked, totalBase, skimmableBase }
+	return { staked, totalBase, skimmableBase, isLocked: unlocksAtBlock.gte(currentBlock) }
 }
 
 function App() {
@@ -59,7 +63,7 @@ function App() {
 		const updateWalletIfAny = wallet
 			? () => getWalletInfo(wallet.signer).then(setWallet)
 			: () => null
-		const interval = setInterval(() => getStats().then(setStats).then(updateWalletIfAny).catch(onError), 20000)
+		const interval = setInterval(() => getStats().then(setStats).then(updateWalletIfAny).catch(onError), STATS_INTVL)
 		return () => clearInterval(interval)
 	}, [wallet])
 
