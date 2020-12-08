@@ -67,6 +67,7 @@ function App() {
 		return () => clearInterval(interval)
 	}, [wallet])
 
+	const isLocked = stats && stats.isLocked
 	return (
 		 <div className="App">
 			<a href="https://medium.com/@pootogether/introducing-pootogether-a-no-loss-blockchain-lottery-5959dc820c9" target="_blank" rel="noreferrer noopener"><div className="poo"/></a>
@@ -75,9 +76,10 @@ function App() {
 				(<Button label="connect wallet" onClick={connectWallet}/>)
 			}
 			{ errMsg ? (<h2 className="error">Error: {errMsg}</h2>) : null }
-			<div className="cardHolder">
+			<div className={isLocked ? "cardHolder locked" : "cardHolder"}>
 				<Deposit wallet={wallet} errWrapper={errWrapper}/>
 				<Withdraw wallet={wallet} errWrapper={errWrapper}/>
+				{ isLocked ? (<div className="inactiveOverlay"><h2 className="error">Pool is locked (draw in progress).</h2></div>) : null }
 			</div>
 			<RewardStats stats={stats} wallet={wallet}/>
 			<footer>
