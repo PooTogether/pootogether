@@ -24,11 +24,20 @@ Here are the official smart contract addresses:
 * Distributor, this will get changed: https://etherscan.io/address/0x54340e60d02518da2d22fc12da489f944716aa49#code
 * Uniswap: https://info.uniswap.org/pair/0x12c740bc4f0c99912ff8bef028270e2fb23adead
 
+Official links: 
+* Twitter: https://twitter.com/pootogether
+* Discord: https://discord.gg/AaNay4aGkr
+ 
+
 ### Future plans
 
 With the Ethereum congestion, our future plans are changing
 
 Instead of doing another airdrop and starting to do regular draws, we are exploring alternative layer 2 options since reward draws are currently more expensive than the rewards themselves.
+
+### Audits
+
+See https://twitter.com/pootogether/status/1333482399456518144?s=20
 
 ### Screenshots
 
