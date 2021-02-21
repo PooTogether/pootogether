@@ -8,6 +8,11 @@ You can enjoy it on [pootogether.com](https://www.pootogether.com) and it curren
 
 For more info, please read [the announcement](https://pootogether.medium.com/introducing-pootogether-a-no-loss-blockchain-lottery-5959dc820c9).
 
+### Building/running
+
+* for the UI, see [the README](./pootogether-ui/README.md)
+* for the contracts, `npm install`, `truffle build`, `truffle run`, etc.
+
 ### Project status
 
 More or less complete in a basic form - you can find smart contracts and UI in this repo.
