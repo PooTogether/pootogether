@@ -12,7 +12,6 @@ const Vault = new Contract("0x5dbcF33D8c2E976c6b560249878e6F1491Bca25c", require
 
 // TODOs
 // github pages account, deploy
-// check for cname leaks
 // show shitcoin list?
 // footer
 
